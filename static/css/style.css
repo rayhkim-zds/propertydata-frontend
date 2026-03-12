@@ -1,0 +1,164 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f0f4f8;
+  color: #1a202c;
+  min-height: 100vh;
+}
+
+header {
+  background: linear-gradient(135deg, #1a56db 0%, #0e3faa 100%);
+  color: #fff;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+}
+header h1 { font-size: 2rem; margin-bottom: .4rem; }
+header p  { opacity: .85; font-size: 1rem; }
+
+main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+
+/* Search */
+.search-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  margin-bottom: 1.5rem;
+}
+.search-wrap { position: relative; }
+
+#searchInput {
+  width: 100%;
+  padding: .75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color .2s;
+}
+#searchInput:focus { border-color: #1a56db; }
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 100;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.suggestions li {
+  padding: .65rem 1rem;
+  cursor: pointer;
+  font-size: .95rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.suggestions li:last-child { border-bottom: none; }
+.suggestions li:hover { background: #ebf4ff; }
+
+/* Address header */
+.address-header {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  margin-bottom: 1.25rem;
+}
+.address-header h2 { font-size: 1.25rem; margin-bottom: .75rem; }
+.metrics { display: flex; gap: 1rem; flex-wrap: wrap; }
+.metric {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: .6rem 1rem;
+  min-width: 120px;
+}
+.metric .label { font-size: .75rem; color: #718096; text-transform: uppercase; letter-spacing: .04em; }
+.metric .value { font-size: 1.1rem; font-weight: 600; color: #1a202c; margin-top: 2px; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.tab-btn {
+  padding: .5rem 1.1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: all .15s;
+  color: #4a5568;
+}
+.tab-btn:hover  { border-color: #1a56db; color: #1a56db; }
+.tab-btn.active { border-color: #1a56db; background: #1a56db; color: #fff; }
+
+/* Panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.panel-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+
+/* Radius row */
+.radius-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+  flex-wrap: wrap;
+}
+.radius-row input[type=range] { flex: 1; min-width: 150px; accent-color: #1a56db; }
+.radius-row button {
+  padding: .4rem .9rem;
+  border: none;
+  border-radius: 6px;
+  background: #1a56db;
+  color: #fff;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 500;
+}
+.radius-row button:hover { background: #1648c0; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th {
+  text-align: left;
+  padding: .6rem .75rem;
+  background: #f7fafc;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #718096;
+}
+td { padding: .6rem .75rem; border-bottom: 1px solid #f1f5f9; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f7fafc; }
+
+/* AI text */
+.ai-summary { line-height: 1.75; font-size: .97rem; white-space: pre-wrap; }
+
+/* Utilities */
+.loading { color: #718096; font-style: italic; padding: 1rem 0; }
+.error   { color: #c53030; padding: 1rem 0; }
+.empty   { color: #718096; padding: 1rem 0; }
+a { color: #1a56db; }
