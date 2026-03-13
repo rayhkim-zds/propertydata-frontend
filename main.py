@@ -21,6 +21,11 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/developers", response_class=HTMLResponse)
+async def developers(request: Request):
+    return templates.TemplateResponse("developers.html", {"request": request})
+
+
 @app.get("/api/suggest")
 async def suggest(q: str = Query(..., min_length=3)):
     return suggest_address(q)

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Developer Portal — PropertyData Australia</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/developers.css"/>
+</head>
+<body>
+  <header class="dev-header">
+    <div class="dev-header__inner">
+      <div>
+        <a href="/" class="dev-header__home">&larr; Back to PropertyData Australia</a>
+        <h1 class="dev-header__title">Developer Portal</h1>
+        <p class="dev-header__sub">REST API reference, authentication, and code examples</p>
+      </div>
+      <div class="dev-header__badges">
+        <span class="badge badge--green">v1</span>
+        <span class="badge badge--blue">REST / JSON</span>
+        <span class="badge badge--grey">HTTPS only</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dev-layout">
+
+    <!-- Left nav -->
+    <nav class="dev-nav">
+      <ul>
+        <li class="dev-nav__section">Getting Started</li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#authentication">Authentication</a></li>
+        <li><a href="#base-url">Base URL</a></li>
+        <li><a href="#errors">Errors</a></li>
+        <li class="dev-nav__section">Endpoints</li>
+        <li><a href="#address-suggest">Address Suggest</a></li>
+        <li><a href="#geocode">Geocode</a></li>
+        <li><a href="#lookup">Property Lookup</a></li>
+        <li><a href="#ai-lookup">AI Insights</a></li>
+        <li><a href="#nearest-transport">Nearest Transport</a></li>
+        <li><a href="#nearest-schools">Nearest Schools</a></li>
+        <li><a href="#da">Development Apps</a></li>
+        <li><a href="#title-search">Title Search</a></li>
+        <li><a href="#cadastre">Cadastre</a></li>
+        <li><a href="#validate-postcode">Validate Postcode</a></li>
+        <li class="dev-nav__section">Guides</li>
+        <li><a href="#workflow">Typical Workflow</a></li>
+        <li><a href="#rate-limits">Rate Limits</a></li>
+        <li><a href="#support">Support</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main docs content -->
+    <main class="dev-content">
+
+      <!-- Overview -->
+      <section id="overview" class="doc-section">
+        <h2>Overview</h2>
+        <p>The PropertyData API provides programmatic access to Australian property and address data. All endpoints return JSON and follow standard HTTP conventions.</p>
+        <div class="info-box">
+          <strong>Typical flow:</strong> address-suggest → geocode → (lookup, ai-lookup, nearest-transport, nearest-schools, da, title-search) in parallel.
+        </div>
+      </section>
+
+      <!-- Auth -->
+      <section id="authentication" class="doc-section">
+        <h2>Authentication</h2>
+        <p>All requests must include your API key in the <code>X-API-KEY</code> header.</p>
+        <div class="code-block">
+          <div class="code-block__label">HTTP</div>
+          <pre>GET /api/v1/property/geocode?gnaf_id=GAACT717940975
+X-API-KEY: your_api_key_here</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-block__label">Python</div>
+          <pre>import requests
+
+headers = {"X-API-KEY": "your_api_key_here"}
+r = requests.get(
+    "https://api.propertydataservices.com.au/api/v1/property/geocode",
+    params={"gnaf_id": "GAACT717940975"},
+    headers=headers,
+)
+print(r.json())</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-block__label">cURL</div>
+          <pre>curl -H "X-API-KEY: your_api_key_here" \
+  "https://api.propertydataservices.com.au/api/v1/property/geocode?gnaf_id=GAACT717940975"</pre>
+        </div>
+        <div class="info-box info-box--warning">
+          Keep your API key secret. Do not expose it in client-side JavaScript.
+        </div>
+      </section>
+
+      <!-- Base URL -->
+      <section id="base-url" class="doc-section">
+        <h2>Base URL</h2>
+        <div class="code-block">
+          <pre>https://api.propertydataservices.com.au/api/v1/property</pre>
+        </div>
+        <p>All endpoint paths below are relative to this base URL.</p>
+      </section>
+
+      <!-- Errors -->
+      <section id="errors" class="doc-section">
+        <h2>Errors</h2>
+        <table class="doc-table">
+          <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>400</code></td><td>Bad request — missing or invalid parameter</td></tr>
+            <tr><td><code>401</code></td><td>Unauthorised — invalid or missing API key</td></tr>
+            <tr><td><code>404</code></td><td>Resource not found (e.g. unknown G-NAF ID)</td></tr>
+            <tr><td><code>422</code></td><td>Validation error — check parameter types</td></tr>
+            <tr><td><code>502</code></td><td>Upstream API error (Geoscape, Gemini, etc.)</td></tr>
+          </tbody>
+        </table>
+        <p>Error responses include a <code>detail</code> field describing the problem:</p>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{"detail": "G-NAF address not found: GAACT000000000"}</pre>
+        </div>
+      </section>
+
+      <!-- ── ENDPOINTS ── -->
+
+      <!-- address-suggest -->
+      <section id="address-suggest" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/address-suggest</span>
+        </div>
+        <p>Returns address autocomplete suggestions for a partial query string. Backed by the Geoscape Predictive API.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>q</code></td><td>string</td><td>Yes</td><td>Partial address query (min 3 chars)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>[
+  {
+    "gnaf_id": "GAACT717940975",
+    "display_name": "1 Main Street, Sydney NSW 2000"
+  },
+  ...
+]</pre>
+        </div>
+        <h3>Example</h3>
+        <div class="code-block">
+          <div class="code-block__label">cURL</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/address-suggest?q=1+Martin+Pl"</pre>
+        </div>
+      </section>
+
+      <!-- geocode -->
+      <section id="geocode" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/geocode</span>
+        </div>
+        <p>Resolves a G-NAF address ID to coordinates, suburb, postcode, and state. Use the <code>gnaf_id</code> returned from <a href="#address-suggest">/address-suggest</a>.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>gnaf_id</code></td><td>string</td><td>Yes</td><td>G-NAF address ID (e.g. <code>GAACT717940975</code>)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "gnaf_id": "GAACT717940975",
+  "display_name": "1 Martin Place, Sydney NSW 2000",
+  "suburb": "Sydney",
+  "postcode": "2000",
+  "state": "NSW",
+  "lat": -33.86785,
+  "lon": 151.20732
+}</pre>
+        </div>
+      </section>
+
+      <!-- lookup -->
+      <section id="lookup" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/lookup</span>
+        </div>
+        <p>Returns property statistics for a geocoded address, including median price where available.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>Latitude from geocode</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>Longitude from geocode</td></tr>
+            <tr><td><code>address</code></td><td>string</td><td>Yes</td><td>Resolved display address</td></tr>
+            <tr><td><code>suburb</code></td><td>string</td><td>No</td><td>Suburb name</td></tr>
+            <tr><td><code>postcode</code></td><td>string</td><td>No</td><td>Postcode</td></tr>
+            <tr><td><code>state</code></td><td>string</td><td>No</td><td>State/territory abbreviation</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "address": "1 Martin Place, Sydney NSW 2000",
+  "suburb": "Sydney",
+  "postcode": "2000",
+  "state": "NSW",
+  "lat": -33.86785,
+  "lon": 151.20732,
+  "median_price": 1500000.0
+}</pre>
+        </div>
+      </section>
+
+      <!-- ai-lookup -->
+      <section id="ai-lookup" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/ai-lookup</span>
+        </div>
+        <p>Returns an AI-generated suburb and property overview powered by Google Gemini 2.5 Flash. Covers demographics, market conditions, amenities, transport, and lifestyle.</p>
+        <div class="info-box info-box--warning">This endpoint calls an external AI model and may take 5–15 seconds.</div>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>Latitude from geocode</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>Longitude from geocode</td></tr>
+            <tr><td><code>address</code></td><td>string</td><td>Yes</td><td>Resolved display address</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "address": "1 Martin Place, Sydney NSW 2000",
+  "summary": "## Suburb Overview\nSydney CBD is located in the heart of..."
+}</pre>
+        </div>
+      </section>
+
+      <!-- nearest-transport -->
+      <section id="nearest-transport" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/nearest-transport</span>
+        </div>
+        <p>Returns nearby public transport stops (train, tram, bus, ferry) within a given radius. Sourced from OpenStreetMap via Overpass API.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>—</td><td>Latitude</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>—</td><td>Longitude</td></tr>
+            <tr><td><code>address</code></td><td>string</td><td>Yes</td><td>—</td><td>Display address</td></tr>
+            <tr><td><code>radius_m</code></td><td>int</td><td>No</td><td>1000</td><td>Search radius in metres (100–5000)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "address": "1 Martin Place, Sydney NSW 2000",
+  "centre_lat": -33.86785,
+  "centre_lon": 151.20732,
+  "radius_m": 1000,
+  "stops": [
+    {
+      "name": "Martin Place Station",
+      "type": "train_station",
+      "distance_km": 0.05,
+      "lat": -33.8679,
+      "lon": 151.2077
+    },
+    ...
+  ]
+}</pre>
+        </div>
+        <h3>Stop types</h3>
+        <p><code>train_station</code> · <code>train_halt</code> · <code>tram_stop</code> · <code>bus_stop</code> · <code>ferry_terminal</code> · <code>transit_stop</code></p>
+      </section>
+
+      <!-- nearest-schools -->
+      <section id="nearest-schools" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/nearest-schools</span>
+        </div>
+        <p>Returns nearby schools, kindergartens, colleges, and universities within a given radius. Sourced from OpenStreetMap.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>—</td><td>Latitude</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>—</td><td>Longitude</td></tr>
+            <tr><td><code>address</code></td><td>string</td><td>Yes</td><td>—</td><td>Display address</td></tr>
+            <tr><td><code>radius_m</code></td><td>int</td><td>No</td><td>2000</td><td>Search radius in metres (100–10000)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "address": "1 Martin Place, Sydney NSW 2000",
+  "centre_lat": -33.86785,
+  "centre_lon": 151.20732,
+  "radius_m": 2000,
+  "schools": [
+    {
+      "name": "Sydney Grammar School",
+      "type": "school",
+      "distance_km": 0.42,
+      "lat": -33.8712,
+      "lon": 151.2134
+    },
+    ...
+  ]
+}</pre>
+        </div>
+        <h3>School types</h3>
+        <p><code>school</code> · <code>kindergarten</code> · <code>college</code> · <code>university</code></p>
+      </section>
+
+      <!-- da -->
+      <section id="da" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/da</span>
+        </div>
+        <p>Returns development applications (DAs) lodged near a given address, sourced from the Planning Alerts API. Results are sorted by distance.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>—</td><td>Latitude</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>—</td><td>Longitude</td></tr>
+            <tr><td><code>address</code></td><td>string</td><td>Yes</td><td>—</td><td>Display address</td></tr>
+            <tr><td><code>radius_m</code></td><td>int</td><td>No</td><td>1000</td><td>Search radius in metres (100–5000)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "address": "1 Martin Place, Sydney NSW 2000",
+  "centre_lat": -33.86785,
+  "centre_lon": 151.20732,
+  "radius_m": 1000,
+  "applications": [
+    {
+      "id": 123456,
+      "council_reference": "DA/2024/0041",
+      "address": "2 Martin Place Sydney NSW 2000",
+      "description": "Alterations and additions to existing commercial building",
+      "info_url": "https://...",
+      "date_received": "2024-03-01",
+      "on_notice_to": "2024-03-22",
+      "authority": "City of Sydney Council",
+      "distance_km": 0.08
+    },
+    ...
+  ]
+}</pre>
+        </div>
+      </section>
+
+      <!-- title-search -->
+      <section id="title-search" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/title-search</span>
+        </div>
+        <p>Returns cadastral title information for a G-NAF address ID, including lot/plan identifiers and the state land registry reference.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>gnaf_id</code></td><td>string</td><td>Yes</td><td>G-NAF address ID</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "gnaf_id": "GAACT717940975",
+  "address": "1 Martin Place, Sydney NSW 2000",
+  "cadastral_identifier": "SYDN/SYDN/1/A",
+  "jurisdiction_id": "37043114F66631",
+  "contributor_property_id": "1075080",
+  "geo_feature": "FRONTAGE CENTRE SETBACK",
+  "address_record_type": "PRIMARY",
+  "suburb": "Sydney",
+  "postcode": "2000",
+  "state": "NSW",
+  "lat": -33.86785,
+  "lon": 151.20732
+}</pre>
+        </div>
+      </section>
+
+      <!-- cadastre -->
+      <section id="cadastre" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/cadastre</span>
+        </div>
+        <p>Returns cadastre parcel data for a coordinate pair from the NSW Spatial Services. Returns <code>null</code> if no parcel is found or the address is outside NSW.</p>
+        <div class="info-box">Currently only covers NSW parcels via the NSW Spatial Services public WFS.</div>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>Latitude</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>Longitude</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "cadid": 2123456,
+  "lot_number": "1",
+  "plan_label": "DP123456",
+  "lot_id_string": "1//DP123456",
+  "area_sqm": 412.5,
+  "title_status": "Titled",
+  "stratum_level": null,
+  "has_stratum": false
+}</pre>
+        </div>
+      </section>
+
+      <!-- validate-postcode -->
+      <section id="validate-postcode" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/validate-postcode</span>
+        </div>
+        <p>Validates an Australian postcode and returns the associated suburbs and state via the Australia Post API.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>postcode</code></td><td>string</td><td>Yes</td><td>4-digit Australian postcode</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "valid": true,
+  "postcode": "2000",
+  "suburbs": ["SYDNEY", "HAYMARKET", "THE ROCKS"],
+  "state": "NSW"
+}</pre>
+        </div>
+      </section>
+
+      <!-- Workflow -->
+      <section id="workflow" class="doc-section">
+        <h2>Typical Workflow</h2>
+        <p>Most integrations follow this three-step pattern:</p>
+        <div class="code-block">
+          <div class="code-block__label">Python — full workflow</div>
+          <pre>import requests
+
+BASE = "https://api.propertydataservices.com.au/api/v1/property"
+H = {"X-API-KEY": "your_api_key_here"}
+
+# 1. Suggest
+suggestions = requests.get(f"{BASE}/address-suggest", params={"q": "1 Martin Pl"}, headers=H).json()
+gnaf_id = suggestions[0]["gnaf_id"]
+
+# 2. Geocode
+geo = requests.get(f"{BASE}/geocode", params={"gnaf_id": gnaf_id}, headers=H).json()
+lat, lon, address = geo["lat"], geo["lon"], geo["display_name"]
+
+# 3. Parallel lookups (shown sequentially for clarity)
+property_data = requests.get(f"{BASE}/lookup",
+    params={"lat": lat, "lon": lon, "address": address,
+            "suburb": geo["suburb"], "postcode": geo["postcode"], "state": geo["state"]},
+    headers=H).json()
+
+transport = requests.get(f"{BASE}/nearest-transport",
+    params={"lat": lat, "lon": lon, "address": address, "radius_m": 1000},
+    headers=H).json()
+
+print(property_data)
+print(f"{len(transport['stops'])} transport stops found")</pre>
+        </div>
+      </section>
+
+      <!-- Rate limits -->
+      <section id="rate-limits" class="doc-section">
+        <h2>Rate Limits</h2>
+        <table class="doc-table">
+          <thead><tr><th>Plan</th><th>Requests / minute</th><th>Requests / day</th></tr></thead>
+          <tbody>
+            <tr><td>Free (sandbox)</td><td>10</td><td>100</td></tr>
+            <tr><td>Starter</td><td>60</td><td>5,000</td></tr>
+            <tr><td>Pro</td><td>300</td><td>50,000</td></tr>
+            <tr><td>Enterprise</td><td>Custom</td><td>Custom</td></tr>
+          </tbody>
+        </table>
+        <p>Rate limit headers are included in every response:</p>
+        <div class="code-block">
+          <div class="code-block__label">HTTP response headers</div>
+          <pre>X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 58
+X-RateLimit-Reset: 1710000060</pre>
+        </div>
+      </section>
+
+      <!-- Support -->
+      <section id="support" class="doc-section">
+        <h2>Support</h2>
+        <p>For API access requests, billing, or technical issues:</p>
+        <ul>
+          <li>Email: <a href="mailto:api@propertydataservices.com.au">api@propertydataservices.com.au</a></li>
+          <li>Docs feedback: open an issue on GitHub</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
