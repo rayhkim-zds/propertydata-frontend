@@ -162,3 +162,36 @@ tr:hover td { background: #f7fafc; }
 .error   { color: #c53030; padding: 1rem 0; }
 .empty   { color: #718096; padding: 1rem 0; }
 a { color: #1a56db; }
+
+/* Title registry link */
+.title-registry-link {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: .75rem;
+  background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px;
+  padding: .75rem 1rem; margin-bottom: 1.25rem;
+}
+.title-cad-row { display: flex; align-items: center; gap: .5rem; }
+.title-cad-id { font-size: .9rem; color: #2c5282; }
+.title-hint { font-size: .8rem; color: #4a5568; margin: -.5rem 0 1rem; }
+.btn-copy {
+  background: #e2e8f0; border: none; border-radius: 5px;
+  padding: .25rem .6rem; font-size: .8rem; cursor: pointer; color: #2d3748;
+}
+.btn-copy:hover { background: #cbd5e0; }
+.btn-registry {
+  display: inline-block; background: #1a56db; color: #fff;
+  padding: .5rem 1rem; border-radius: 6px; font-size: .9rem;
+  text-decoration: none; white-space: nowrap;
+}
+.btn-registry:hover { background: #1e429f; color: #fff; }
+
+/* JSON renderer */
+.json-table { width: 100%; border-collapse: collapse; }
+.json-table td { padding: .35rem .6rem; vertical-align: top; border-bottom: 1px solid #edf2f7; font-size: .9rem; }
+.json-key { font-weight: 600; color: #2d3748; white-space: nowrap; width: 35%; }
+.json-array { margin: 0; padding-left: 1.2rem; }
+.json-array li { padding: .2rem 0; font-size: .9rem; }
+.json-str  { color: #276749; }
+.json-num  { color: #1a56db; }
+.json-bool { color: #b7791f; }
+.json-null, .json-empty { color: #a0aec0; font-style: italic; }

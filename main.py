@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from api.client import (
     suggest_address, geocode, lookup_property,
     ai_lookup, nearest_transport, nearest_schools,
-    development_applications,
+    development_applications, title_search, cadastre_lookup,
 )
 
 load_dotenv()
@@ -64,3 +64,13 @@ async def schools_data(lat: float, lon: float, address: str, radius_m: int = 200
 @app.get("/api/da")
 async def da_data(lat: float, lon: float, address: str, radius_m: int = 1000):
     return development_applications(lat, lon, address, radius_m)
+
+
+@app.get("/api/title-search")
+async def title_search_data(gnaf_id: str):
+    return title_search(gnaf_id)
+
+
+@app.get("/api/cadastre")
+async def cadastre_data(lat: float, lon: float):
+    return cadastre_lookup(lat, lon)

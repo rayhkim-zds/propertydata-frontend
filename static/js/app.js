@@ -1,4 +1,4 @@
-let state = { lat: null, lon: null, address: null };
+let state = { lat: null, lon: null, address: null, gnafId: null };
 let suggestTimer = null;
 
 // ── Address Autocomplete ──────────────────────────────────────────────────────
@@ -43,6 +43,7 @@ async function selectAddress(gnafId, label) {
   setContent("transportContent",`<p class="loading">Loading…</p>`);
   setContent("schoolsContent",  `<p class="loading">Loading…</p>`);
   setContent("daContent",       `<p class="loading">Loading…</p>`);
+  setContent("titleContent",    `<p class="loading">Loading…</p>`);
   document.getElementById("results").hidden = false;
 
   // Property data (includes geocode)
@@ -52,7 +53,7 @@ async function selectAddress(gnafId, label) {
   if (data.error) { setContent("propertyContent", `<p class="error">${data.error}</p>`); return; }
 
   const geo = data.geo;
-  state = { lat: geo.lat, lon: geo.lon, address: geo.display_name };
+  state = { lat: geo.lat, lon: geo.lon, address: geo.display_name, gnafId: gnafId };
 
   renderAddressHeader(geo);
   renderProperty(data.property, geo);
@@ -62,6 +63,7 @@ async function selectAddress(gnafId, label) {
   loadTransport();
   loadSchools();
   loadDA();
+  loadTitleSearch();
 }
 
 // ── Address Header ────────────────────────────────────────────────────────────
@@ -160,6 +162,102 @@ async function loadDA() {
     </div>`);
 }
 
+// ── Title Search Tab ──────────────────────────────────────────────────────────
+const REGISTRY_URLS = {
+  NSW: "https://online.nswlrs.com.au/",
+  VIC: "https://www.landata.vic.gov.au/",
+  QLD: "https://www.titlesqld.com.au/",
+  WA:  "https://www0.landgate.wa.gov.au/titlesearch/",
+  SA:  "https://www.landservices.com.au/products/title-search",
+  ACT: "https://www.accesscanberra.act.gov.au/app/answers/detail/a_id/1285",
+  NT:  "https://nt.gov.au/property/land-titles-and-property/search-for-land-title-information",
+  TAS: "https://www.thelist.tas.gov.au/",
+};
+
+async function loadTitleSearch() {
+  const { gnafId, lat, lon } = state;
+
+  // Fetch title search and cadastre data in parallel
+  const [titleRes, cadastreRes] = await Promise.all([
+    fetch(`/api/title-search?gnaf_id=${encodeURIComponent(gnafId)}`),
+    fetch(`/api/cadastre?lat=${lat}&lon=${lon}`),
+  ]);
+
+  const data = await titleRes.json();
+  if (data.error) { setContent("titleContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+
+  const cadastre = cadastreRes.ok ? await cadastreRes.json() : null;
+
+  const st = (data.state || "").toUpperCase();
+  const registryUrl = REGISTRY_URLS[st] || null;
+
+  // Use Geoscape cadastral_identifier for the copy button
+  const copyId = data.cadastral_identifier || null;
+  const displayId = copyId ? `Cadastral ID: <strong>${escHtml(copyId)}</strong>` : "";
+
+  const copyBtn = copyId
+    ? `<button class="btn-copy" onclick="copyToClipboard('${escHtml(copyId)}', this)" title="Copy to clipboard">📋 Copy</button>`
+    : "";
+
+  const linkHtml = registryUrl ? `
+    <div class="title-registry-link">
+      <div class="title-cad-row">
+        ${displayId ? `<span class="title-cad-id">${displayId}</span>${copyBtn}` : ""}
+      </div>
+      <a href="${escHtml(registryUrl)}" target="_blank" rel="noopener" class="btn-registry">
+        🔗 Get Title Document (${escHtml(st)} Registry)
+      </a>
+    </div>
+    ${copyId ? `<p class="title-hint">💡 Click "Copy" then paste into the registry search field.</p>` : ""}` : "";
+
+  // NSW Cadastre section
+  const cadastreHtml = cadastre && !cadastre.error ? `
+    <h3 style="margin:1.25rem 0 .75rem">🗺️ NSW Cadastre (Spatial Services)</h3>
+    ${buildTable(
+      ["Field", "Value"],
+      [
+        ["Lot Number",    escHtml(cadastre.lot_number  || "—")],
+        ["Plan Label",    escHtml(cadastre.plan_label  || "—")],
+        ["Lot/Plan Ref",  escHtml(cadastre.lot_id_string || "—")],
+        ["Area",          cadastre.area_sqm != null ? `${cadastre.area_sqm.toLocaleString()} m²` : "—"],
+        ["Title Status",  escHtml(cadastre.title_status || "—")],
+        ["Stratum Level", cadastre.stratum_level != null ? cadastre.stratum_level : "—"],
+        ["Has Stratum",   cadastre.has_stratum ? "Yes" : "No"],
+        ["CAD ID",        cadastre.cadid != null ? cadastre.cadid : "—"],
+      ]
+    )}` : (st === "NSW" ? `<p class="empty" style="margin-top:1rem">No NSW cadastre parcel found at this location.</p>` : "");
+
+  setContent("titleContent", `
+    <div class="panel-card">
+      ${linkHtml}
+      <h3 style="margin-bottom:.75rem">📄 Title Record (Geoscape)</h3>
+      ${renderJson(data)}
+      ${cadastreHtml}
+    </div>`);
+}
+
+function renderJson(obj, depth = 0) {
+  if (obj === null) return `<span class="json-null">null</span>`;
+  if (typeof obj === "boolean") return `<span class="json-bool">${obj}</span>`;
+  if (typeof obj === "number") return `<span class="json-num">${obj}</span>`;
+  if (typeof obj === "string") return `<span class="json-str">${escHtml(obj)}</span>`;
+
+  if (Array.isArray(obj)) {
+    if (!obj.length) return `<span class="json-empty">[ ]</span>`;
+    const items = obj.map(v => `<li>${renderJson(v, depth + 1)}</li>`).join("");
+    return `<ul class="json-array">${items}</ul>`;
+  }
+
+  const entries = Object.entries(obj);
+  if (!entries.length) return `<span class="json-empty">{ }</span>`;
+  const rows = entries.map(([k, v]) => `
+    <tr>
+      <td class="json-key">${escHtml(k)}</td>
+      <td>${renderJson(v, depth + 1)}</td>
+    </tr>`).join("");
+  return `<table class="json-table"><tbody>${rows}</tbody></table>`;
+}
+
 // ── Radius sliders ────────────────────────────────────────────────────────────
 document.getElementById("transportRadius").addEventListener("input", function() {
   document.getElementById("transportRadiusLabel").textContent = this.value;
@@ -190,6 +288,14 @@ function buildTable(headers, rows) {
     `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`
   ).join("");
   return `<div style="overflow-x:auto"><table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+}
+
+function copyToClipboard(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "✅ Copied!";
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
 }
 
 function escHtml(str) {

@@ -54,3 +54,11 @@ def nearest_schools(lat: float, lon: float, address: str, radius_m: int = 2000) 
 
 def development_applications(lat: float, lon: float, address: str, radius_m: int = 1000) -> Optional[dict]:
     return _get("da", {"lat": lat, "lon": lon, "address": address, "radius_m": radius_m})
+
+
+def title_search(gnaf_id: str) -> Optional[dict]:
+    return _get("title-search", {"gnaf_id": gnaf_id})
+
+
+def cadastre_lookup(lat: float, lon: float) -> Optional[dict]:
+    return _get("cadastre", {"lat": lat, "lon": lon})
