@@ -12,7 +12,64 @@
     <p>Search any Australian address to get property insights, transport, schools, and development activity.</p>
   </header>
 
-  <main>
+  <div class="page-layout">
+
+    <!-- Left sidebar: news feed -->
+    <aside class="sidebar sidebar--left">
+      <div class="news-feed">
+        <h2 class="news-feed__title">Property News</h2>
+
+        <article class="news-item">
+          <span class="news-item__tag">Market</span>
+          <a href="#" class="news-item__headline" onclick="return false">Sydney auction clearance rates hit 8-month high as spring listings surge</a>
+          <span class="news-item__meta">Domain · 2h ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Interest Rates</span>
+          <a href="#" class="news-item__headline" onclick="return false">RBA holds cash rate at 4.10% — economists split on next move</a>
+          <span class="news-item__meta">AFR · 4h ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Rental</span>
+          <a href="#" class="news-item__headline" onclick="return false">Melbourne vacancy rate falls to 1.2% — tightest in five years</a>
+          <span class="news-item__meta">REA Group · 6h ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Infrastructure</span>
+          <a href="#" class="news-item__headline" onclick="return false">Western Sydney Metro stations to boost nearby property values by up to 12%</a>
+          <span class="news-item__meta">Herald · 8h ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Policy</span>
+          <a href="#" class="news-item__headline" onclick="return false">Federal government fast-tracks 1.2 million new homes target review</a>
+          <span class="news-item__meta">ABC · 10h ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Market</span>
+          <a href="#" class="news-item__headline" onclick="return false">Brisbane leads capital city price growth for third consecutive quarter</a>
+          <span class="news-item__meta">CoreLogic · 12h ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Finance</span>
+          <a href="#" class="news-item__headline" onclick="return false">First-home buyer grants extended in QLD and WA through 2026</a>
+          <span class="news-item__meta">Mortgage Choice · 1d ago</span>
+        </article>
+
+        <article class="news-item">
+          <span class="news-item__tag">Rental</span>
+          <a href="#" class="news-item__headline" onclick="return false">Perth rents rise 9% year-on-year as interstate migration continues</a>
+          <span class="news-item__meta">REIWA · 1d ago</span>
+        </article>
+      </div>
+    </aside>
+
+    <main>
     <!-- Search -->
     <section class="search-card">
       <div class="search-wrap">
@@ -74,6 +131,53 @@
       </div>
     </section>
   </main>
+
+  <aside class="sidebar">
+
+    <!-- Demo ad 1: Mortgage broker (300×250) -->
+    <div class="ad-slot">
+      <span class="ad-label">Advertisement</span>
+      <div class="demo-ad demo-ad--mortgage">
+        <div class="demo-ad__logo">🏦</div>
+        <div class="demo-ad__brand">ClearPath Home Loans</div>
+        <div class="demo-ad__tagline">Find your best rate in minutes</div>
+        <ul class="demo-ad__points">
+          <li>✔ Compare 30+ lenders</li>
+          <li>✔ Pre-approval in 24 hrs</li>
+          <li>✔ No hidden fees</li>
+        </ul>
+        <a href="#" class="demo-ad__cta" onclick="return false">Get a Free Quote →</a>
+      </div>
+    </div>
+
+    <!-- Demo ad 2: Buyer's agent (300×600) -->
+    <div class="ad-slot">
+      <span class="ad-label">Sponsored</span>
+      <div class="demo-ad demo-ad--buyers-agent demo-ad--tall">
+        <div class="demo-ad__logo">🔑</div>
+        <div class="demo-ad__brand">Elite Buyers Agency</div>
+        <div class="demo-ad__tagline">We find. You buy. Simple.</div>
+        <p class="demo-ad__body">
+          Skip the open homes. Our experienced buyer's agents negotiate on your behalf and secure properties below market value.
+        </p>
+        <ul class="demo-ad__points">
+          <li>✔ Off-market access</li>
+          <li>✔ Independent advice</li>
+          <li>✔ Nationwide coverage</li>
+          <li>✔ Fixed flat fee</li>
+        </ul>
+        <div class="demo-ad__stat">
+          <span class="demo-ad__stat-num">2,400+</span>
+          <span class="demo-ad__stat-label">properties secured</span>
+        </div>
+        <a href="#" class="demo-ad__cta" onclick="return false">Book a Free Consult →</a>
+        <p class="demo-ad__disclaimer">*Results may vary. Terms apply.</p>
+      </div>
+    </div>
+
+  </aside>
+
+  </div><!-- /.page-layout -->
 
   <script src="/static/js/app.js"></script>
 </body>
