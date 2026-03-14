@@ -7,6 +7,7 @@ from api.client import (
     suggest_address, geocode, lookup_property,
     ai_lookup, nearest_transport, nearest_schools,
     development_applications, title_search, cadastre_lookup,
+    rental_bond_summary,
 )
 
 load_dotenv()
@@ -79,3 +80,8 @@ async def title_search_data(gnaf_id: str):
 @app.get("/api/cadastre")
 async def cadastre_data(lat: float, lon: float):
     return cadastre_lookup(lat, lon)
+
+
+@app.get("/api/rental-bond-summary")
+async def rental_bond_data(postcode: str):
+    return rental_bond_summary(postcode)

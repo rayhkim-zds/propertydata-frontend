@@ -1,4 +1,4 @@
-let state = { lat: null, lon: null, address: null, gnafId: null };
+let state = { lat: null, lon: null, address: null, gnafId: null, postcode: null };
 let suggestTimer = null;
 
 // ── Address Autocomplete ──────────────────────────────────────────────────────
@@ -44,6 +44,7 @@ async function selectAddress(gnafId, label) {
   setContent("schoolsContent",  `<p class="loading">Loading…</p>`);
   setContent("daContent",       `<p class="loading">Loading…</p>`);
   setContent("titleContent",    `<p class="loading">Loading…</p>`);
+  setContent("bondContent",     `<p class="loading">Loading…</p>`);
   document.getElementById("results").hidden = false;
 
   // Property data (includes geocode)
@@ -53,7 +54,7 @@ async function selectAddress(gnafId, label) {
   if (data.error) { setContent("propertyContent", `<p class="error">${data.error}</p>`); return; }
 
   const geo = data.geo;
-  state = { lat: geo.lat, lon: geo.lon, address: geo.display_name, gnafId: gnafId };
+  state = { lat: geo.lat, lon: geo.lon, address: geo.display_name, gnafId: gnafId, postcode: geo.postcode };
 
   renderAddressHeader(geo);
   renderProperty(data.property, geo);
@@ -64,6 +65,7 @@ async function selectAddress(gnafId, label) {
   loadSchools();
   loadDA();
   loadTitleSearch();
+  loadRentalBond();
 }
 
 // ── Address Header ────────────────────────────────────────────────────────────
@@ -256,6 +258,44 @@ function renderJson(obj, depth = 0) {
       <td>${renderJson(v, depth + 1)}</td>
     </tr>`).join("");
   return `<table class="json-table"><tbody>${rows}</tbody></table>`;
+}
+
+// ── Rental Bond Tab ───────────────────────────────────────────────────────────
+async function loadRentalBond() {
+  const { postcode } = state;
+  if (!postcode) { setContent("bondContent", `<p class="empty">No postcode available.</p>`); return; }
+  const res = await fetch(`/api/rental-bond-summary?postcode=${encodeURIComponent(postcode)}`);
+  const data = await res.json();
+  if (data.error) { setContent("bondContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const results = data.results || [];
+  if (!results.length) { setContent("bondContent", `<p class="empty">No rental bond data found for postcode ${escHtml(postcode)}.</p>`); return; }
+
+  // Group by dwelling type
+  const groups = {};
+  results.forEach(r => {
+    const key = r.dwelling_type_desc || r.dwelling_type;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+
+  const sections = Object.entries(groups).map(([typeName, rows]) => {
+    const tableRows = rows.map(r => [
+      escHtml(r.bedrooms === "0" ? "Studio" : `${r.bedrooms} bed`),
+      r.total_count.toLocaleString(),
+      `$${r.avg_weekly_rent.toFixed(0)}/wk`,
+    ]);
+    return `
+      <h3 style="margin:1.25rem 0 .75rem">${escHtml(typeName)}</h3>
+      ${buildTable(["Bedrooms", "Bond Lodgements", "Avg Weekly Rent"], tableRows)}`;
+  }).join("");
+
+  setContent("bondContent", `
+    <div class="panel-card">
+      <p style="font-size:.85rem;color:#718096;margin-bottom:1rem">
+        Rental bond data for postcode <strong>${escHtml(postcode)}</strong> — sourced from NSW Fair Trading bond lodgements.
+      </p>
+      ${sections}
+    </div>`);
 }
 
 // ── Radius sliders ────────────────────────────────────────────────────────────

@@ -62,3 +62,7 @@ def title_search(gnaf_id: str) -> Optional[dict]:
 
 def cadastre_lookup(lat: float, lon: float) -> Optional[dict]:
     return _get("cadastre", {"lat": lat, "lon": lon})
+
+
+def rental_bond_summary(postcode: str) -> Optional[dict]:
+    return _get("rental-bond-summary", {"postcode": postcode})
