@@ -1,16 +1,16 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from dotenv import load_dotenv
 from api.client import (
     suggest_address, geocode, lookup_property,
     ai_lookup, nearest_transport, nearest_schools,
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup,
 )
-
-load_dotenv()
 
 app = FastAPI(title="PropertyData Frontend")
 app.mount("/static", StaticFiles(directory="static"), name="static")
