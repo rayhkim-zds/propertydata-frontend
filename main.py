@@ -9,7 +9,7 @@ from api.client import (
     suggest_address, geocode, lookup_property,
     ai_lookup, nearest_transport, nearest_schools,
     development_applications, title_search, cadastre_lookup,
-    rental_bond_summary, landsize_lookup,
+    rental_bond_summary, landsize_lookup, property_map_html,
 )
 
 app = FastAPI(title="PropertyData Frontend")
@@ -85,6 +85,14 @@ async def cadastre_data(lat: float, lon: float):
 @app.get("/api/landsize")
 async def landsize_data(lot: str, plan: str):
     return landsize_lookup(lot, plan)
+
+
+@app.get("/api/property-map", response_class=HTMLResponse)
+async def property_map(lot: str, plan: str):
+    html = property_map_html(lot, plan)
+    if not html:
+        return HTMLResponse("<p>Map unavailable. Check backend connection.</p>", status_code=502)
+    return HTMLResponse(html)
 
 
 @app.get("/api/rental-bond-summary")

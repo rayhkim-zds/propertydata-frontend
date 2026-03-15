@@ -68,5 +68,15 @@ def landsize_lookup(lot: str, plan: str) -> Optional[dict]:
     return _get("landsize", {"lot": lot, "plan": plan})
 
 
+def property_map_html(lot: str, plan: str) -> Optional[str]:
+    """Fetch the property map HTML page from the backend."""
+    try:
+        r = requests.get(f"{BASE_URL}/property-map", params={"lot": lot, "plan": plan}, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        return r.text
+    except Exception:
+        return None
+
+
 def rental_bond_summary(postcode: str) -> Optional[dict]:
     return _get("rental-bond-summary", {"postcode": postcode})

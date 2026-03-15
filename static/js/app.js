@@ -215,16 +215,26 @@ async function loadTitleSearch() {
     ? `<button class="btn-copy" onclick="copyToClipboard('${escHtml(copyId)}', this)" title="Copy to clipboard">📋 Copy</button>`
     : "";
 
-  const linkHtml = registryUrl ? `
+  const mapBtn = (cadastre && !cadastre.error && cadastre.lot_number && cadastre.plan_label)
+    ? `<a href="/api/property-map?lot=${encodeURIComponent(cadastre.lot_number)}&plan=${encodeURIComponent(cadastre.plan_label)}"
+         target="_blank" rel="noopener" class="btn-registry" style="background:#2d8a4e;">
+        🗺️ View Property Map
+       </a>`
+    : "";
+
+  const linkHtml = `
     <div class="title-registry-link">
       <div class="title-cad-row">
         ${displayId ? `<span class="title-cad-id">${displayId}</span>${copyBtn}` : ""}
       </div>
-      <a href="${escHtml(registryUrl)}" target="_blank" rel="noopener" class="btn-registry">
-        🔗 Get Title Document (${escHtml(st)} Registry)
-      </a>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem;">
+        ${mapBtn}
+        ${registryUrl ? `<a href="${escHtml(registryUrl)}" target="_blank" rel="noopener" class="btn-registry">
+          🔗 Get Title Document (${escHtml(st)} Registry)
+        </a>` : ""}
+      </div>
     </div>
-    ${copyId ? `<p class="title-hint">💡 Click "Copy" then paste into the registry search field.</p>` : ""}` : "";
+    ${copyId ? `<p class="title-hint">💡 Click "Copy" then paste into the registry search field.</p>` : ""}`;
 
   const cadastreRows = cadastre && !cadastre.error ? {
     lotPlanRef:   escHtml(cadastre.lot_id_string || "—"),
