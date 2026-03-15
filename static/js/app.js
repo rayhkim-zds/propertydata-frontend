@@ -119,11 +119,12 @@ async function loadTransport() {
   const res = await fetch(`/api/transport?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}&radius_m=${radius}`);
   const data = await res.json();
   if (data.error) { setContent("transportContent", `<p class="error">${data.error}</p>`); return; }
-  const stops = data.stops || [];
+  const selectedTypes = new Set([...document.querySelectorAll(".transport-type:checked")].map(c => c.value));
+  const stops = (data.stops || []).filter(s => selectedTypes.has(s.type));
   if (!stops.length) { setContent("transportContent", `<p class="empty">No transport stops found within ${radius} m.</p>`); return; }
   setContent("transportContent", `
     <div class="panel-card">
-      ${buildTable(["Stop Name","Type","Distance (km)"], stops.map(s => [escHtml(s.name), escHtml(s.type), s.distance_km]))}
+      ${buildTable(["Stop Name","Type","Distance (km)"], stops.map(s => [escHtml(s.name || "—"), escHtml(s.type.replace(/_/g," ")), s.distance_km]))}
     </div>`);
 }
 
@@ -134,11 +135,12 @@ async function loadSchools() {
   const res = await fetch(`/api/schools?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}&radius_m=${radius}`);
   const data = await res.json();
   if (data.error) { setContent("schoolsContent", `<p class="error">${data.error}</p>`); return; }
-  const schools = data.schools || [];
+  const selectedTypes = new Set([...document.querySelectorAll(".school-type:checked")].map(c => c.value));
+  const schools = (data.schools || []).filter(s => selectedTypes.has(s.type));
   if (!schools.length) { setContent("schoolsContent", `<p class="empty">No schools found within ${radius} m.</p>`); return; }
   setContent("schoolsContent", `
     <div class="panel-card">
-      ${buildTable(["School Name","Type","Distance (km)"], schools.map(s => [escHtml(s.name), escHtml(s.type), s.distance_km]))}
+      ${buildTable(["School Name","Type","Distance (km)"], schools.map(s => [escHtml(s.name || "—"), escHtml(s.type.charAt(0).toUpperCase() + s.type.slice(1)), s.distance_km]))}
     </div>`);
 }
 
@@ -273,7 +275,7 @@ async function loadRentalBond() {
   // Group by dwelling type
   const groups = {};
   results.forEach(r => {
-    const key = r.dwelling_type_desc || r.dwelling_type;
+    const key = r.dwellingtypedesc;
     if (!groups[key]) groups[key] = [];
     groups[key].push(r);
   });
@@ -282,7 +284,7 @@ async function loadRentalBond() {
     const tableRows = rows.map(r => [
       escHtml(r.bedrooms === "0" ? "Studio" : `${r.bedrooms} bed`),
       r.total_count.toLocaleString(),
-      `$${r.avg_weekly_rent.toFixed(0)}/wk`,
+      `$${Number(r.avg_weeklyrent).toFixed(0)}/wk`,
     ]);
     return `
       <h3 style="margin:1.25rem 0 .75rem">${escHtml(typeName)}</h3>

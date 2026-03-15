@@ -109,6 +109,14 @@
           <input id="transportRadius" type="range" min="100" max="5000" step="100" value="1000"/>
           <button onclick="loadTransport()">Refresh</button>
         </div>
+        <div class="filter-row">
+          <span class="filter-label">Types:</span>
+          <label><input type="checkbox" class="transport-type" value="train_station" checked> Train station</label>
+          <label><input type="checkbox" class="transport-type" value="train_halt" checked> Train halt</label>
+          <label><input type="checkbox" class="transport-type" value="tram_stop" checked> Tram stop</label>
+          <label><input type="checkbox" class="transport-type" value="bus_stop" checked> Bus stop</label>
+          <label><input type="checkbox" class="transport-type" value="ferry_terminal" checked> Ferry terminal</label>
+        </div>
         <div id="transportContent"><p class="loading">Loading…</p></div>
       </div>
 
@@ -117,6 +125,13 @@
           <label>Radius: <strong id="schoolsRadiusLabel">2000</strong> m</label>
           <input id="schoolsRadius" type="range" min="100" max="10000" step="100" value="2000"/>
           <button onclick="loadSchools()">Refresh</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Types:</span>
+          <label><input type="checkbox" class="school-type" value="school" checked> School</label>
+          <label><input type="checkbox" class="school-type" value="kindergarten" checked> Kindergarten</label>
+          <label><input type="checkbox" class="school-type" value="college" checked> College</label>
+          <label><input type="checkbox" class="school-type" value="university" checked> University</label>
         </div>
         <div id="schoolsContent"><p class="loading">Loading…</p></div>
       </div>
