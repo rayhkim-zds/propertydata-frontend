@@ -64,5 +64,9 @@ def cadastre_lookup(lat: float, lon: float) -> Optional[dict]:
     return _get("cadastre", {"lat": lat, "lon": lon})
 
 
+def landsize_lookup(lot: str, plan: str) -> Optional[dict]:
+    return _get("landsize", {"lot": lot, "plan": plan})
+
+
 def rental_bond_summary(postcode: str) -> Optional[dict]:
     return _get("rental-bond-summary", {"postcode": postcode})

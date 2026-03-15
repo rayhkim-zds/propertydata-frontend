@@ -192,6 +192,18 @@ async function loadTitleSearch() {
 
   const cadastre = cadastreRes.ok ? await cadastreRes.json() : null;
 
+  // Fetch land size using lot/plan from cadastre result (best-effort)
+  let areaSqm = null;
+  if (cadastre && !cadastre.error && cadastre.lot_number && cadastre.plan_label) {
+    try {
+      const lsRes = await fetch(`/api/landsize?lot=${encodeURIComponent(cadastre.lot_number)}&plan=${encodeURIComponent(cadastre.plan_label)}`);
+      if (lsRes.ok) {
+        const ls = await lsRes.json();
+        if (!ls.error) areaSqm = ls.area_sqm;
+      }
+    } catch { /* non-blocking */ }
+  }
+
   const st = (data.state || "").toUpperCase();
   const registryUrl = REGISTRY_URLS[st] || null;
 
@@ -214,29 +226,35 @@ async function loadTitleSearch() {
     </div>
     ${copyId ? `<p class="title-hint">💡 Click "Copy" then paste into the registry search field.</p>` : ""}` : "";
 
-  // NSW Cadastre section
-  const cadastreHtml = cadastre && !cadastre.error ? `
-    <h3 style="margin:1.25rem 0 .75rem">🗺️ NSW Cadastre (Spatial Services)</h3>
-    ${buildTable(
-      ["Field", "Value"],
-      [
-        ["Lot Number",    escHtml(cadastre.lot_number  || "—")],
-        ["Plan Label",    escHtml(cadastre.plan_label  || "—")],
-        ["Lot/Plan Ref",  escHtml(cadastre.lot_id_string || "—")],
-        ["Area",          cadastre.area_sqm != null ? `${cadastre.area_sqm.toLocaleString()} m²` : "—"],
-        ["Title Status",  escHtml(cadastre.title_status || "—")],
-        ["Stratum Level", cadastre.stratum_level != null ? cadastre.stratum_level : "—"],
-        ["Has Stratum",   cadastre.has_stratum ? "Yes" : "No"],
-        ["CAD ID",        cadastre.cadid != null ? cadastre.cadid : "—"],
-      ]
-    )}` : (st === "NSW" ? `<p class="empty" style="margin-top:1rem">No NSW cadastre parcel found at this location.</p>` : "");
+  const cadastreRows = cadastre && !cadastre.error ? {
+    lotPlanRef:   escHtml(cadastre.lot_id_string || "—"),
+    titleStatus:  escHtml(cadastre.title_status  || "—"),
+    stratumLevel: cadastre.stratum_level != null ? cadastre.stratum_level : "—",
+    hasStratum:   cadastre.has_stratum ? "Yes" : "No",
+    cadId:        cadastre.cadid != null ? cadastre.cadid : "—",
+  } : {};
+
+  const rows = [
+    ["Address",                 escHtml(data.address || "—")],
+    ["Cadastral Identifier",    escHtml(data.cadastral_identifier || "—")],
+    ["Lot/Plan Ref",            cadastreRows.lotPlanRef   ?? "—"],
+    ["Land Size",               areaSqm != null ? `${areaSqm.toLocaleString("en-AU")} m²` : "—"],
+    ["Title Status",            cadastreRows.titleStatus  ?? "—"],
+    ["Stratum Level",           cadastreRows.stratumLevel ?? "—"],
+    ["Has Stratum",             cadastreRows.hasStratum   ?? "—"],
+    ["CAD ID",                  cadastreRows.cadId        ?? "—"],
+    ["Jurisdiction ID",         escHtml(data.jurisdiction_id || "—")],
+    ["Contributor Property ID", escHtml(data.contributor_property_id || "—")],
+    ["Geo Feature",             escHtml(data.geo_feature || "—")],
+    ["Address Record Type",     escHtml(data.address_record_type || "—")],
+    ["Coordinates",             data.lat && data.lon ? `${data.lat}, ${data.lon}` : "—"],
+  ];
 
   setContent("titleContent", `
     <div class="panel-card">
       ${linkHtml}
-      <h3 style="margin-bottom:.75rem">📄 Title Record (Geoscape)</h3>
-      ${renderJson(data)}
-      ${cadastreHtml}
+      <h3 style="margin-bottom:.75rem">📄 Title Record and Spatial Data</h3>
+      ${buildTable(["Field", "Value"], rows)}
     </div>`);
 }
 
