@@ -52,8 +52,14 @@ def nearest_schools(lat: float, lon: float, address: str, radius_m: int = 2000) 
     return _get("nearest-schools", {"lat": lat, "lon": lon, "address": address, "radius_m": radius_m})
 
 
-def development_applications(lat: float, lon: float, address: str, radius_m: int = 1000) -> Optional[dict]:
-    return _get("da", {"lat": lat, "lon": lon, "address": address, "radius_m": radius_m})
+def development_applications(postcode: str, status: str = None, days: int = None, limit: int = 100) -> Optional[dict]:
+    params = {"postcode": postcode}
+    if status:
+        params["status"] = status
+    if days:
+        params["days"] = days
+    params["limit"] = limit
+    return _get("da", params)
 
 
 def title_search(gnaf_id: str) -> Optional[dict]:

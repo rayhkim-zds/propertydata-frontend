@@ -69,8 +69,8 @@ async def schools_data(lat: float, lon: float, address: str, radius_m: int = 200
 
 
 @app.get("/api/da")
-async def da_data(lat: float, lon: float, address: str, radius_m: int = 1000):
-    return development_applications(lat, lon, address, radius_m)
+async def da_data(postcode: str, status: str = None, days: int = None, limit: int = 100):
+    return development_applications(postcode, status=status, days=days, limit=limit)
 
 
 @app.get("/api/title-search")

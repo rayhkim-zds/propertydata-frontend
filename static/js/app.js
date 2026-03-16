@@ -152,21 +152,31 @@ async function loadSchools() {
 
 // ── DA Tab ────────────────────────────────────────────────────────────────────
 async function loadDA() {
-  const { lat, lon, address } = state;
-  const radius = document.getElementById("daRadius").value;
-  const res = await fetch(`/api/da?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}&radius_m=${radius}`);
+  const { postcode } = state;
+  if (!postcode) { setContent("daContent", `<p class="empty">No postcode available.</p>`); return; }
+  const res = await fetch(`/api/da?postcode=${encodeURIComponent(postcode)}`);
   const data = await res.json();
   if (data.error) { setContent("daContent", `<p class="error">${data.error}</p>`); return; }
   const apps = data.applications || [];
-  if (!apps.length) { setContent("daContent", `<p class="empty">No development applications found within ${radius} m.</p>`); return; }
+  if (!apps.length) { setContent("daContent", `<p class="empty">No development applications found for postcode ${escHtml(postcode)}.</p>`); return; }
+  window._daData = data;
   setContent("daContent", `
     <div class="panel-card">
+      <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <p style="font-size:.85rem;color:#718096;margin:0">
+          ${apps.length} application${apps.length !== 1 ? "s" : ""} for postcode <strong>${escHtml(postcode)}</strong> — NSW Planning Portal
+        </p>
+        <button onclick="exportDAToExcel(window._daData)" style="padding:.3rem .8rem;font-size:.82rem;background:#2e7d32;width:auto;margin:0;">⬇ Export Excel</button>
+      </div>
       ${buildTable(
-        ["Address","Description","Council","Date Received","Distance (km)","Link"],
+        ["App No.","Address","Status","Lodged","Council","Description"],
         apps.map(a => [
-          escHtml(a.address||""), escHtml(a.description||""), escHtml(a.authority||""),
-          escHtml(a.date_received||""), a.distance_km,
-          a.info_url ? `<a href="${escHtml(a.info_url)}" target="_blank">View</a>` : "",
+          escHtml(a.application_number||"—"),
+          escHtml(a.address||"—"),
+          escHtml(a.status||"—"),
+          escHtml(a.lodgement_date||"—"),
+          escHtml(a.council||"—"),
+          escHtml(a.description||"—"),
         ])
       )}
     </div>`);
@@ -386,9 +396,6 @@ document.getElementById("transportRadius").addEventListener("input", function() 
 document.getElementById("schoolsRadius").addEventListener("input", function() {
   document.getElementById("schoolsRadiusLabel").textContent = this.value;
 });
-document.getElementById("daRadius").addEventListener("input", function() {
-  document.getElementById("daRadiusLabel").textContent = this.value;
-});
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -400,6 +407,36 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     document.getElementById("bondPostcodeInput").value = "";
   });
 });
+
+// ── DA Excel Export ───────────────────────────────────────────────────────────
+function exportDAToExcel(data) {
+  const esc = s => String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const rows = data.applications.map(a => {
+    const appNum = a.application_number || "";
+    const portalUrl = appNum
+      ? `https://www.planningportal.nsw.gov.au/tracking/application/search?applicationNumber=${encodeURIComponent(appNum)}`
+      : "";
+    const appCell = portalUrl
+      ? `<td><a href="${esc(portalUrl)}">${esc(appNum)}</a></td>`
+      : `<td>${esc(appNum)}</td>`;
+    return `<tr>${appCell}<td>${esc(a.address)}</td><td>${esc(a.status)}</td><td>${esc(a.lodgement_date)}</td><td>${esc(a.council)}</td><td>${esc(a.description)}</td></tr>`;
+  }).join("");
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8"><style>td{mso-number-format:"@";}</style></head>
+<body><table>
+<thead><tr><th>App No.</th><th>Address</th><th>Status</th><th>Lodged</th><th>Council</th><th>Description</th></tr></thead>
+<tbody>${rows}</tbody>
+</table></body></html>`;
+  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `DA_${data.postcode}_${new Date().toISOString().slice(0,10)}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function setContent(id, html) { document.getElementById(id).innerHTML = html; }
