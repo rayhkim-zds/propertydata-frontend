@@ -86,16 +86,17 @@
       <div id="addressHeader" class="address-header"></div>
 
       <div class="tabs">
-        <button class="tab-btn active" data-tab="property">🏡 Property</button>
+        <button class="tab-btn" data-tab="property">🏡 Property</button>
         <button class="tab-btn" data-tab="ai">🤖 AI Insights</button>
         <button class="tab-btn" data-tab="transport">🚌 Transport</button>
         <button class="tab-btn" data-tab="schools">🏫 Schools</button>
         <button class="tab-btn" data-tab="da">🏗️ Development</button>
         <button class="tab-btn" data-tab="title">📄 Title Search</button>
-        <button class="tab-btn" data-tab="bond">🔑 Rental Bond</button>
+        <input id="bondPostcodeInput" type="text" placeholder="Search Words" style="width:7rem;padding:.35rem .6rem;border:1px solid #cbd5e0;border-radius:6px;font-size:.9rem;margin-left:.5rem"/>
+        <button onclick="searchBond()" style="margin-left:.25rem">Search</button>
       </div>
 
-      <div id="property" class="tab-panel active">
+      <div id="property" class="tab-panel">
         <div id="propertyContent"><p class="loading">Loading…</p></div>
       </div>
 
@@ -140,7 +141,7 @@
         <div id="titleContent"><p class="loading">Loading…</p></div>
       </div>
 
-      <div id="bond" class="tab-panel">
+      <div id="bond" class="tab-panel active">
         <div id="bondContent"><p class="loading">Loading…</p></div>
       </div>
 

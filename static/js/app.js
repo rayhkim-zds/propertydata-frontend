@@ -45,6 +45,10 @@ async function selectAddress(gnafId, label) {
   setContent("daContent",       `<p class="loading">Loading…</p>`);
   setContent("titleContent",    `<p class="loading">Loading…</p>`);
   setContent("bondContent",     `<p class="loading">Loading…</p>`);
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelector('.tab-btn[data-tab="property"]').classList.add("active");
+  document.getElementById("property").classList.add("active");
   document.getElementById("results").hidden = false;
 
   // Property data (includes geocode)
@@ -292,13 +296,13 @@ function renderJson(obj, depth = 0) {
 
 // ── Rental Bond Tab ───────────────────────────────────────────────────────────
 async function loadRentalBond() {
-  const { postcode } = state;
+  const postcode = state.postcode;
   if (!postcode) { setContent("bondContent", `<p class="empty">No postcode available.</p>`); return; }
   const res = await fetch(`/api/rental-bond-summary?postcode=${encodeURIComponent(postcode)}`);
   const data = await res.json();
   if (data.error) { setContent("bondContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
   const results = data.results || [];
-  if (!results.length) { setContent("bondContent", `<p class="empty">No rental bond data found for postcode ${escHtml(postcode)}.</p>`); return; }
+  if (!results.length) { setContent("bondContent", `<p class="empty">No rental bond data found for postcode ${escHtml(String(postcode))}.</p>`); return; }
 
   // Group by dwelling type
   const groups = {};
@@ -328,6 +332,15 @@ async function loadRentalBond() {
     </div>`);
 }
 
+// ── Bond search (activates bond tab + loads data) ─────────────────────────────
+function searchBond() {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("bond").classList.add("active");
+  document.getElementById("results").hidden = false;
+  loadRentalBond();
+}
+
 // ── Radius sliders ────────────────────────────────────────────────────────────
 document.getElementById("transportRadius").addEventListener("input", function() {
   document.getElementById("transportRadiusLabel").textContent = this.value;
@@ -346,6 +359,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById(btn.dataset.tab).classList.add("active");
+    document.getElementById("bondPostcodeInput").value = "";
   });
 });
 
