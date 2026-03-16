@@ -90,3 +90,7 @@ def rental_bond_summary(postcode: str) -> Optional[dict]:
 
 def bushfire_risk(lat: float, lon: float) -> Optional[dict]:
     return _get("bushfire-risk", {"lat": lat, "lon": lon})
+
+
+def sales_data(postcode: int, date_from: int, date_to: int) -> Optional[dict]:
+    return _get("sales-data", {"postcode": postcode, "date_from": date_from, "date_to": date_to})

@@ -88,6 +88,7 @@
       <div class="tabs">
         <button class="tab-btn" data-tab="property">🏡 Property</button>
         <button class="tab-btn" data-tab="ai">🤖 AI Insights</button>
+        <button class="tab-btn" data-tab="salesdata">💰 Sales Data</button>
         <button class="tab-btn" data-tab="transport">🚌 Transport</button>
         <button class="tab-btn" data-tab="schools">🏫 Schools</button>
         <button class="tab-btn" data-tab="da">🏗️ Development</button>
@@ -103,6 +104,15 @@
 
       <div id="ai" class="tab-panel">
         <div id="aiContent"><p class="loading">Loading…</p></div>
+      </div>
+
+      <div id="salesdata" class="tab-panel">
+        <div class="radius-row">
+          <label>From: <input type="date" id="salesDateFrom" style="padding:.35rem .5rem;font-size:.9rem;border:1px solid #cbd5e0;border-radius:6px;margin-left:.3rem;"/></label>
+          <label style="margin-left:.75rem">To: <input type="date" id="salesDateTo" style="padding:.35rem .5rem;font-size:.9rem;border:1px solid #cbd5e0;border-radius:6px;margin-left:.3rem;"/></label>
+          <button onclick="loadSalesData()">Refresh</button>
+        </div>
+        <div id="salesdataContent"><p class="loading">Loading…</p></div>
       </div>
 
       <div id="transport" class="tab-panel">

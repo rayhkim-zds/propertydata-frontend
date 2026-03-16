@@ -38,14 +38,15 @@ async function selectAddress(gnafId, label) {
   hideSuggestions();
   searchInput.value = label;
 
-  setContent("propertyContent", `<p class="loading">Loading…</p>`);
-  setContent("aiContent",       `<p class="loading">Loading…</p>`);
-  setContent("transportContent",`<p class="loading">Loading…</p>`);
-  setContent("schoolsContent",  `<p class="loading">Loading…</p>`);
-  setContent("daContent",       `<p class="loading">Loading…</p>`);
-  setContent("titleContent",    `<p class="loading">Loading…</p>`);
-  setContent("bushfireContent", `<p class="loading">Loading…</p>`);
-  setContent("bondContent",     `<p class="loading">Loading…</p>`);
+  setContent("propertyContent",  `<p class="loading">Loading…</p>`);
+  setContent("aiContent",        `<p class="loading">Loading…</p>`);
+  setContent("salesdataContent", `<p class="loading">Loading…</p>`);
+  setContent("transportContent", `<p class="loading">Loading…</p>`);
+  setContent("schoolsContent",   `<p class="loading">Loading…</p>`);
+  setContent("daContent",        `<p class="loading">Loading…</p>`);
+  setContent("titleContent",     `<p class="loading">Loading…</p>`);
+  setContent("bushfireContent",  `<p class="loading">Loading…</p>`);
+  setContent("bondContent",      `<p class="loading">Loading…</p>`);
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   document.querySelector('.tab-btn[data-tab="property"]').classList.add("active");
@@ -66,6 +67,7 @@ async function selectAddress(gnafId, label) {
 
   // Load remaining tabs in parallel
   loadAI();
+  loadSalesData();
   loadTransport();
   loadSchools();
   loadDA();
@@ -116,6 +118,88 @@ async function loadAI() {
       <h3 style="margin-bottom:1rem">AI Property & Suburb Summary</h3>
       <p class="ai-summary">${escHtml(data.summary || "No summary available.")}</p>
     </div>`);
+}
+
+// ── Sales Data Tab ────────────────────────────────────────────────────────────
+function formatSaleDate(yyyymmdd) {
+  if (!yyyymmdd) return "—";
+  const s = String(yyyymmdd);
+  if (s.length !== 8) return s;
+  return `${s.slice(6,8)}/${s.slice(4,6)}/${s.slice(0,4)}`;
+}
+
+async function loadSalesData() {
+  const { postcode } = state;
+  if (!postcode) { setContent("salesdataContent", `<p class="empty">No postcode available.</p>`); return; }
+  const fromVal = document.getElementById("salesDateFrom").value;
+  const toVal   = document.getElementById("salesDateTo").value;
+  if (!fromVal || !toVal) { setContent("salesdataContent", `<p class="empty">Please select both From and To dates.</p>`); return; }
+  const dateFrom = fromVal.replace(/-/g, "");
+  const dateTo   = toVal.replace(/-/g, "");
+  const res = await fetch(`/api/sales-data?postcode=${encodeURIComponent(postcode)}&date_from=${dateFrom}&date_to=${dateTo}`);
+  const data = await res.json();
+  if (data.error) { setContent("salesdataContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const sales = data.sales || [];
+  if (!sales.length) {
+    setContent("salesdataContent", `<p class="empty">No sales found for postcode ${escHtml(String(postcode))} in this date range.</p>`);
+    return;
+  }
+  window._salesData = data;
+  setContent("salesdataContent", `
+    <div class="panel-card">
+      <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <p style="font-size:.85rem;color:#718096;margin:0">
+          ${sales.length} sale${sales.length !== 1 ? "s" : ""} for postcode <strong>${escHtml(String(postcode))}</strong>
+          — ${formatSaleDate(data.date_from)} to ${formatSaleDate(data.date_to)}
+        </p>
+        <button onclick="exportSalesToExcel(window._salesData)" style="padding:.3rem .8rem;font-size:.82rem;background:#2e7d32;width:auto;margin:0;">⬇ Export Excel</button>
+      </div>
+      ${buildTable(
+        ["Contract Date","Address","Price","Type","Area","Lot/Plan"],
+        sales.map(s => [
+          escHtml(formatSaleDate(s.contract_date)),
+          escHtml([s.street_number, s.street, s.suburb].filter(Boolean).join(" ") || "—"),
+          s.purchase_price != null ? s.purchase_price.toLocaleString("en-AU", {style:"currency",currency:"AUD",maximumFractionDigits:0}) : "—",
+          escHtml(s.property_type_desc || s.property_type_category || s.property_type_code || "—"),
+          s.area != null ? escHtml(`${Number(s.area).toLocaleString("en-AU")} ${s.area_type || ""}`.trim()) : "—",
+          escHtml(s.lot_plan || "—"),
+        ])
+      )}
+    </div>`);
+}
+
+function exportSalesToExcel(data) {
+  const esc = s => String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const rows = data.sales.map(s => {
+    const addr = [s.street_number, s.street, s.suburb].filter(Boolean).join(" ");
+    const area = s.area != null ? `${s.area} ${s.area_type || ""}`.trim() : "";
+    return `<tr>
+      <td>${esc(formatSaleDate(s.contract_date))}</td>
+      <td>${esc(addr)}</td>
+      <td>${esc(s.purchase_price != null ? s.purchase_price : "")}</td>
+      <td>${esc(s.property_type_desc || s.property_type_category || s.property_type_code)}</td>
+      <td>${esc(area)}</td>
+      <td>${esc(s.lot_plan)}</td>
+      <td>${esc(s.postcode)}</td>
+      <td>${esc(formatSaleDate(s.settlement_date))}</td>
+      <td>${esc(s.valuation_id)}</td>
+    </tr>`;
+  }).join("");
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8"><style>td{mso-number-format:"@";}</style></head>
+<body><table>
+<thead><tr><th>Contract Date</th><th>Address</th><th>Purchase Price</th><th>Property Type</th><th>Area</th><th>Lot/Plan</th><th>Postcode</th><th>Settlement Date</th><th>Valuation ID</th></tr></thead>
+<tbody>${rows}</tbody>
+</table></body></html>`;
+  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Sales_${data.postcode}_${data.date_from}_${data.date_to}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ── Transport Tab ─────────────────────────────────────────────────────────────
@@ -467,3 +551,14 @@ function escHtml(str) {
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
+
+// ── Sales date defaults (last 12 months) ──────────────────────────────────────
+(function() {
+  const today = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const past = new Date(today);
+  past.setFullYear(past.getFullYear() - 1);
+  document.getElementById("salesDateFrom").value = fmt(past);
+  document.getElementById("salesDateTo").value   = fmt(today);
+})();

@@ -10,7 +10,7 @@ from api.client import (
     ai_lookup, nearest_transport, nearest_schools,
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
-    bushfire_risk,
+    bushfire_risk, sales_data,
 )
 
 app = FastAPI(title="PropertyData Frontend")
@@ -104,3 +104,8 @@ async def rental_bond_data(postcode: str):
 @app.get("/api/bushfire-risk")
 async def bushfire_risk_data(lat: float, lon: float):
     return bushfire_risk(lat, lon)
+
+
+@app.get("/api/sales-data")
+async def sales_data_route(postcode: int, date_from: int, date_to: int):
+    return sales_data(postcode, date_from, date_to)
