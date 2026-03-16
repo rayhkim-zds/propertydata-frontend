@@ -151,6 +151,30 @@
       </div>
 
       <div id="da" class="tab-panel">
+        <div class="radius-row">
+          <label>Status:
+            <select id="daStatus" style="padding:.35rem .5rem;font-size:.9rem;border:1px solid #cbd5e0;border-radius:6px;margin-left:.3rem;">
+              <option value="">All</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Under Assessment">Under Assessment</option>
+              <option value="On Exhibition">On Exhibition</option>
+              <option value="Additional Information Requested">Additional Info Requested</option>
+              <option value="Determined">Determined</option>
+              <option value="Withdrawn">Withdrawn</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </label>
+          <label style="margin-left:.75rem">Lodged within:
+            <select id="daDays" style="padding:.35rem .5rem;font-size:.9rem;border:1px solid #cbd5e0;border-radius:6px;margin-left:.3rem;">
+              <option value="">All time</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="180">Last 180 days</option>
+              <option value="365">Last 12 months</option>
+            </select>
+          </label>
+          <button onclick="loadDA()">Refresh</button>
+        </div>
         <div id="daContent"><p class="loading">Loading…</p></div>
       </div>
     </section>

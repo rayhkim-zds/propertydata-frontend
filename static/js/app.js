@@ -154,7 +154,12 @@ async function loadSchools() {
 async function loadDA() {
   const { postcode } = state;
   if (!postcode) { setContent("daContent", `<p class="empty">No postcode available.</p>`); return; }
-  const res = await fetch(`/api/da?postcode=${encodeURIComponent(postcode)}`);
+  const params = new URLSearchParams({ postcode });
+  const status = document.getElementById("daStatus")?.value;
+  if (status) params.set("status", status);
+  const days = document.getElementById("daDays")?.value;
+  if (days) params.set("days", days);
+  const res = await fetch(`/api/da?${params}`);
   const data = await res.json();
   if (data.error) { setContent("daContent", `<p class="error">${data.error}</p>`); return; }
   const apps = data.applications || [];
