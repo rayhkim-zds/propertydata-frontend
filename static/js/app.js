@@ -44,6 +44,7 @@ async function selectAddress(gnafId, label) {
   setContent("schoolsContent",  `<p class="loading">Loading…</p>`);
   setContent("daContent",       `<p class="loading">Loading…</p>`);
   setContent("titleContent",    `<p class="loading">Loading…</p>`);
+  setContent("bushfireContent", `<p class="loading">Loading…</p>`);
   setContent("bondContent",     `<p class="loading">Loading…</p>`);
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -69,6 +70,7 @@ async function selectAddress(gnafId, label) {
   loadSchools();
   loadDA();
   loadTitleSearch();
+  loadBushfireRisk();
   loadRentalBond();
 }
 
@@ -292,6 +294,42 @@ function renderJson(obj, depth = 0) {
       <td>${renderJson(v, depth + 1)}</td>
     </tr>`).join("");
   return `<table class="json-table"><tbody>${rows}</tbody></table>`;
+}
+
+// ── Bushfire Risk Tab ─────────────────────────────────────────────────────────
+async function loadBushfireRisk() {
+  const { lat, lon } = state;
+  const res = await fetch(`/api/bushfire-risk?lat=${lat}&lon=${lon}`);
+  const data = await res.json();
+  if (data.error) { setContent("bushfireContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const isWarning = data.risk === "WARNING";
+  const resultLine = isWarning
+    ? "IS within designated Bush Fire Prone Land."
+    : "NOT within designated Bush Fire Prone Land.";
+  const detailRows = isWarning ? `
+    <tr><td class="bf-label">Risk level</td><td class="bf-value" style="color:${data.category === 0 ? "#b45309" : "#c62828"};font-weight:700;">WARNING &nbsp; ${escHtml(data.category_label || "")}</td></tr>
+    <tr><td class="bf-label">Category</td><td class="bf-value">${data.category} - ${escHtml(data.category_label || "—")}</td></tr>
+    <tr><td class="bf-label">Description</td><td class="bf-value">${escHtml(data.category_label || "—")}</td></tr>
+    <tr><td class="bf-label">Guideline</td><td class="bf-value">${escHtml(data.guideline || "—")}</td></tr>
+    <tr><td class="bf-label">Last update</td><td class="bf-value">${escHtml(data.last_update || "—")}</td></tr>` : "";
+  setContent("bushfireContent", `
+    <div class="panel-card">
+      <div style="border:2px solid ${isWarning ? "#f5c6c6" : "#b7dfb7"};border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:${isWarning ? "#c62828" : "#2e7d32"};color:#fff;font-weight:700;letter-spacing:.03em;">
+          ${"=".repeat(52)}
+        </div>
+        <div style="padding:.75rem 1rem;font-weight:700;font-size:.95rem;color:${isWarning ? "#c62828" : "#2e7d32"};">
+          RESULT: ${resultLine}
+        </div>
+        ${isWarning ? `<table style="width:100%;border-collapse:collapse;padding:0 1rem .75rem;">
+          <colgroup><col style="width:7rem"></colgroup>
+          <tbody>${detailRows}</tbody>
+        </table>` : ""}
+        <div style="padding:.5rem 1rem;background:${isWarning ? "#fff3f3" : "#f1f8f1"};border-top:2px solid ${isWarning ? "#f5c6c6" : "#b7dfb7"};font-size:.8rem;color:#555;">
+          ⚖️ Legal note: This result is indicative only.
+        </div>
+      </div>
+    </div>`);
 }
 
 // ── Rental Bond Tab ───────────────────────────────────────────────────────────

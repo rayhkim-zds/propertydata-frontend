@@ -399,3 +399,7 @@ a { color: #1a56db; }
 .json-num  { color: #1a56db; }
 .json-bool { color: #b7791f; }
 .json-null, .json-empty { color: #a0aec0; font-style: italic; }
+
+/* Bushfire risk table */
+.bf-label { font-weight: 600; color: #555; padding: .3rem 1rem .3rem 1rem; white-space: nowrap; vertical-align: top; width: 7rem; }
+.bf-value  { color: #1a1a1a; padding: .3rem .5rem; }

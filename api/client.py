@@ -80,3 +80,7 @@ def property_map_html(lot: str, plan: str) -> Optional[str]:
 
 def rental_bond_summary(postcode: str) -> Optional[dict]:
     return _get("rental-bond-summary", {"postcode": postcode})
+
+
+def bushfire_risk(lat: float, lon: float) -> Optional[dict]:
+    return _get("bushfire-risk", {"lat": lat, "lon": lon})
