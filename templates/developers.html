@@ -44,6 +44,11 @@
         <li><a href="#title-search">Title Search</a></li>
         <li><a href="#cadastre">Cadastre</a></li>
         <li><a href="#validate-postcode">Validate Postcode</a></li>
+        <li><a href="#bushfire-risk">Bushfire Risk</a></li>
+        <li><a href="#rental-bond-summary">Rental Bond Summary</a></li>
+        <li><a href="#landsize">Land Size</a></li>
+        <li><a href="#sales-data">Sales Data</a></li>
+        <li><a href="#property-map">Property Map</a></li>
         <li class="dev-nav__section">Guides</li>
         <li><a href="#workflow">Typical Workflow</a></li>
         <li><a href="#rate-limits">Rate Limits</a></li>
@@ -462,6 +467,239 @@ print(r.json())</pre>
   "suburbs": ["SYDNEY", "HAYMARKET", "THE ROCKS"],
   "state": "NSW"
 }</pre>
+        </div>
+      </section>
+
+      <!-- bushfire-risk -->
+      <section id="bushfire-risk" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/bushfire-risk</span>
+        </div>
+        <p>Returns bushfire risk assessment for a coordinate pair, sourced from the NSW ePlanning Portal hazard layer.</p>
+        <div class="info-box">Currently only covers NSW. Returns <code>"Low Risk"</code> when no hazard layer intersects the point.</div>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Yes</td><td>Latitude</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Yes</td><td>Longitude</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON — low risk</div>
+          <pre>{
+  "lat": -33.86785,
+  "lon": 151.20732,
+  "risk": "Low Risk",
+  "category": null,
+  "category_label": null,
+  "guideline": null,
+  "last_update": null
+}</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-block__label">JSON — warning</div>
+          <pre>{
+  "lat": -33.5,
+  "lon": 150.9,
+  "risk": "WARNING",
+  "category": 1,
+  "category_label": "Vegetation Category 1 – Highest risk (forest, woodland, heath, wetland)",
+  "guideline": "BAL-FZ",
+  "last_update": "12 Jan 2024"
+}</pre>
+        </div>
+        <h3>Category values</h3>
+        <table class="doc-table">
+          <thead><tr><th>Category</th><th>Label</th></tr></thead>
+          <tbody>
+            <tr><td><code>0</code></td><td>Vegetation Buffer (100 m around Cat 1, 30 m around Cat 2/3)</td></tr>
+            <tr><td><code>1</code></td><td>Vegetation Category 1 – Highest risk</td></tr>
+            <tr><td><code>2</code></td><td>Vegetation Category 2 – Moderate risk</td></tr>
+            <tr><td><code>3</code></td><td>Vegetation Category 3 – Lower risk</td></tr>
+          </tbody>
+        </table>
+        <h3>Example</h3>
+        <div class="code-block">
+          <div class="code-block__label">cURL</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/bushfire-risk?lat=-33.5&lon=150.9"</pre>
+        </div>
+      </section>
+
+      <!-- rental-bond-summary -->
+      <section id="rental-bond-summary" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/rental-bond-summary</span>
+        </div>
+        <p>Returns a summary of rental bond lodgements for a postcode, grouped by dwelling type and bedroom count. Data is sourced from the PropertyData RDS database.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>postcode</code></td><td>string</td><td>Yes</td><td>4-digit Australian postcode</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "postcode": "2000",
+  "results": [
+    {
+      "dwellingtypedesc": "Apartment",
+      "bedrooms": "1",
+      "total_count": 342,
+      "avg_weeklyrent": 620.50
+    },
+    {
+      "dwellingtypedesc": "Apartment",
+      "bedrooms": "2",
+      "total_count": 215,
+      "avg_weeklyrent": 890.00
+    },
+    ...
+  ]
+}</pre>
+        </div>
+        <h3>Example</h3>
+        <div class="code-block">
+          <div class="code-block__label">cURL</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/rental-bond-summary?postcode=2000"</pre>
+        </div>
+      </section>
+
+      <!-- landsize -->
+      <section id="landsize" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/landsize</span>
+        </div>
+        <p>Returns the land area (in square metres) for a cadastral lot/plan identifier. Sourced from NSW Spatial Services.</p>
+        <div class="info-box">Currently only covers NSW parcels. Use the <code>lot_id_string</code> from <a href="#cadastre">/cadastre</a> to obtain the lot and plan values.</div>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>cadastre</code></td><td>string</td><td>Conditional</td><td>Lot/plan in <code>lot/plan</code> format (e.g. <code>1/848172</code>). Use this <em>or</em> <code>lot</code> + <code>plan</code>.</td></tr>
+            <tr><td><code>lot</code></td><td>string</td><td>Conditional</td><td>Lot number (e.g. <code>10</code>)</td></tr>
+            <tr><td><code>plan</code></td><td>string</td><td>Conditional</td><td>Plan number with optional prefix (e.g. <code>DP246488</code> or <code>246488</code>)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "lot_number": "1",
+  "plan_number": 848172,
+  "plan_label": "DP848172",
+  "area_sqm": 650.75
+}</pre>
+        </div>
+        <h3>Example</h3>
+        <div class="code-block">
+          <div class="code-block__label">cURL — using cadastre shorthand</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/landsize?cadastre=1/848172"</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-block__label">cURL — using lot and plan separately</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/landsize?lot=1&plan=DP848172"</pre>
+        </div>
+      </section>
+
+      <!-- sales-data -->
+      <section id="sales-data" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/sales-data</span>
+        </div>
+        <p>Returns property sales records for a postcode within a date range. Data is sourced from the PropertyData RDS database and sorted by contract date descending.</p>
+        <h3>Query Parameters</h3>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>postcode</code></td><td>integer</td><td>Yes</td><td>Australian postcode</td></tr>
+            <tr><td><code>date_from</code></td><td>integer</td><td>Yes</td><td>Start date inclusive in <code>YYYYMMDD</code> format (e.g. <code>20240101</code>)</td></tr>
+            <tr><td><code>date_to</code></td><td>integer</td><td>Yes</td><td>End date inclusive in <code>YYYYMMDD</code> format (e.g. <code>20241231</code>)</td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block">
+          <div class="code-block__label">JSON</div>
+          <pre>{
+  "postcode": 2000,
+  "date_from": 20240101,
+  "date_to": 20241231,
+  "total": 2,
+  "sales": [
+    {
+      "property_id": 10023456,
+      "lga_code": 10500,
+      "street_number": "12",
+      "street": "PITT ST",
+      "suburb": "SYDNEY",
+      "postcode": 2000,
+      "area": 210.0,
+      "area_type": "M",
+      "contract_date": 20241105,
+      "settlement_date": 20241220,
+      "purchase_price": 1250000,
+      "property_type_code": "R",
+      "property_type_category": "Residential",
+      "property_type_desc": "House",
+      "lot_plan": "1//DP123456",
+      "valuation_id": "1234567"
+    },
+    ...
+  ]
+}</pre>
+        </div>
+        <h3>Example</h3>
+        <div class="code-block">
+          <div class="code-block__label">cURL</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/sales-data?postcode=2000&date_from=20240101&date_to=20241231"</pre>
+        </div>
+      </section>
+
+      <!-- property-map -->
+      <section id="property-map" class="doc-section">
+        <div class="endpoint-header">
+          <span class="method method--get">GET</span>
+          <span class="endpoint-path">/property-map</span>
+        </div>
+        <p>Returns an interactive HTML map centred on a property parcel, rendered with Leaflet and NSW Cadastre data. The response is an <code>text/html</code> page suitable for embedding in an <code>&lt;iframe&gt;</code>.</p>
+        <div class="info-box">This endpoint returns <strong>HTML</strong>, not JSON. Currently limited to NSW parcels.</div>
+        <h3>Query Parameters</h3>
+        <p>Provide <em>either</em> coordinates <strong>or</strong> a lot/plan identifier:</p>
+        <table class="doc-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>lat</code></td><td>float</td><td>Conditional</td><td>Latitude (use with <code>lon</code>)</td></tr>
+            <tr><td><code>lon</code></td><td>float</td><td>Conditional</td><td>Longitude (use with <code>lat</code>)</td></tr>
+            <tr><td><code>cadastre</code></td><td>string</td><td>Conditional</td><td>Lot/plan shorthand (e.g. <code>1/848172</code>)</td></tr>
+            <tr><td><code>lot</code></td><td>string</td><td>Conditional</td><td>Lot number (e.g. <code>10</code>)</td></tr>
+            <tr><td><code>plan</code></td><td>string</td><td>Conditional</td><td>Plan number (e.g. <code>DP848172</code>)</td></tr>
+          </tbody>
+        </table>
+        <h3>Example</h3>
+        <div class="code-block">
+          <div class="code-block__label">HTML — embed as iframe</div>
+          <pre>&lt;iframe
+  src="https://api.propertydataservices.com.au/api/v1/property/property-map?lat=-33.86785&amp;lon=151.20732"
+  width="100%" height="400" frameborder="0"&gt;
+&lt;/iframe&gt;</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-block__label">cURL — by lot/plan</div>
+          <pre>curl -H "X-API-KEY: your_key" \
+  "https://api.propertydataservices.com.au/api/v1/property/property-map?cadastre=1/848172"</pre>
         </div>
       </section>
 

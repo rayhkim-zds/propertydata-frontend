@@ -115,7 +115,7 @@ async function loadAI() {
   if (data.error) { setContent("aiContent", `<p class="error">${data.error}</p>`); return; }
   setContent("aiContent", `
     <div class="panel-card">
-      <h3 style="margin-bottom:1rem">AI Property & Suburb Summary</h3>
+      <h3 style="margin-bottom:1rem">Property & Suburb Summary</h3>
       <p class="ai-summary">${escHtml(data.summary || "No summary available.")}</p>
     </div>`);
 }
