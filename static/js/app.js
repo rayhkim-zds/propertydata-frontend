@@ -79,31 +79,27 @@ async function selectAddress(gnafId, label) {
 // ── Address Header ────────────────────────────────────────────────────────────
 function renderAddressHeader(geo) {
   document.getElementById("addressHeader").innerHTML = `
-    <h2>📍 ${geo.display_name}</h2>
-    <div class="metrics">
-      <div class="metric"><div class="label">Suburb</div><div class="value">${geo.suburb}</div></div>
-      <div class="metric"><div class="label">Postcode</div><div class="value">${geo.postcode}</div></div>
-      <div class="metric"><div class="label">State</div><div class="value">${geo.state}</div></div>
-      <div class="metric"><div class="label">Lat</div><div class="value">${geo.lat.toFixed(5)}</div></div>
-      <div class="metric"><div class="label">Lon</div><div class="value">${geo.lon.toFixed(5)}</div></div>
+    <div style="font-weight:600;margin-bottom:.4rem">${geo.display_name}</div>
+    <div style="font-size:.82rem;color:#555;display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;">
+      <span><span style="color:#888">G-NAF ID </span><span style="font-weight:600;color:#1a202c">${geo.gnaf_id}</span></span>
+      <span><span style="color:#888">Lat </span><span style="font-weight:600;color:#1a202c">${geo.lat.toFixed(6)}</span></span>
+      <span><span style="color:#888">Lon </span><span style="font-weight:600;color:#1a202c">${geo.lon.toFixed(6)}</span></span>
     </div>`;
 }
 
 // ── Property Tab ──────────────────────────────────────────────────────────────
-function renderProperty(prop, geo) {
-  const price = prop && !prop.error && typeof prop.median_price === "number"
-    ? `$${prop.median_price.toLocaleString()}`
-    : "N/A";
+function renderProperty(_prop, geo) {
   setContent("propertyContent", `
     <div class="panel-card">
-      <div class="metrics" style="margin-bottom:1.25rem">
-        <div class="metric"><div class="label">Median Price</div><div class="value">${price}</div></div>
-        <div class="metric"><div class="label">Suburb</div><div class="value">${geo.suburb}</div></div>
-        <div class="metric"><div class="label">State</div><div class="value">${geo.state}</div></div>
+      <div style="font-weight:600;margin-bottom:.4rem">${geo.display_name}</div>
+      <div style="font-size:.82rem;color:#555;display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;">
+        <span><span style="color:#888">Suburb </span><span style="font-weight:600;color:#1a202c">${geo.suburb || "—"}</span></span>
+        <span><span style="color:#888">Postcode </span><span style="font-weight:600;color:#1a202c">${geo.postcode || "—"}</span></span>
+        <span><span style="color:#888">State </span><span style="font-weight:600;color:#1a202c">${geo.state || "—"}</span></span>
+        <span><span style="color:#888">G-NAF ID </span><span style="font-weight:600;color:#1a202c">${geo.gnaf_id}</span></span>
+        <span><span style="color:#888">Lat </span><span style="font-weight:600;color:#1a202c">${geo.lat.toFixed(6)}</span></span>
+        <span><span style="color:#888">Lon </span><span style="font-weight:600;color:#1a202c">${geo.lon.toFixed(6)}</span></span>
       </div>
-      <p style="font-size:.85rem;color:#718096;margin-top:.5rem">
-        Coordinates: ${geo.lat}, ${geo.lon}
-      </p>
     </div>`);
 }
 
