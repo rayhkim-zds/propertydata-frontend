@@ -7,10 +7,24 @@ API_KEY = os.getenv("API_KEY", "opendata-guest-2026")
 
 HEADERS = {"X-API-KEY": API_KEY}
 
+_BACKEND_ROOT = BASE_URL.rsplit("/property", 1)[0]  # e.g. http://localhost:8000/api/v1
+MORTGAGE_BASE = f"{_BACKEND_ROOT}/mortgage"
+
 
 def _get(endpoint: str, params: dict) -> Optional[dict]:
     try:
         r = requests.get(f"{BASE_URL}/{endpoint}", params=params, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        return r.json()
+    except requests.exceptions.HTTPError as e:
+        return {"error": f"HTTP {e.response.status_code}: {e.response.text}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def _post(url: str, payload: dict) -> Optional[dict]:
+    try:
+        r = requests.post(url, json=payload, headers=HEADERS, timeout=15)
         r.raise_for_status()
         return r.json()
     except requests.exceptions.HTTPError as e:
@@ -96,3 +110,7 @@ def rent_detect(lat: float, lon: float, address: str) -> Optional[dict]:
 
 def sales_data(postcode: int, date_from: int, date_to: int) -> Optional[dict]:
     return _get("sales-data", {"postcode": postcode, "date_from": date_from, "date_to": date_to})
+
+
+def mortgage_quote(payload: dict) -> Optional[dict]:
+    return _post(f"{MORTGAGE_BASE}/mortgage-quote", payload)

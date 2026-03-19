@@ -11,6 +11,7 @@ from api.client import (
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
     bushfire_risk, sales_data, pool_detect, rent_detect,
+    mortgage_quote,
 )
 
 app = FastAPI(title="PropertyData Frontend")
@@ -26,6 +27,11 @@ async def index(request: Request):
 @app.get("/developers", response_class=HTMLResponse)
 async def developers(request: Request):
     return templates.TemplateResponse("developers.html", {"request": request})
+
+
+@app.get("/mortgage-calculator", response_class=HTMLResponse)
+async def mortgage_calculator(request: Request):
+    return templates.TemplateResponse("mortgage.html", {"request": request})
 
 
 @app.get("/api/suggest")
@@ -119,3 +125,9 @@ async def pool_detect_data(lat: float, lon: float, address: str):
 @app.get("/api/rent-detect")
 async def rent_detect_data(lat: float, lon: float, address: str):
     return rent_detect(lat, lon, address)
+
+
+@app.post("/api/mortgage-quote")
+async def mortgage_quote_route(request: Request):
+    payload = await request.json()
+    return mortgage_quote(payload)

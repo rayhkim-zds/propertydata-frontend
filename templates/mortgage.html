@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mortgage Calculator — PropertyData Australia</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/mortgage.css"/>
+</head>
+<body>
+  <header>
+    <h1>🏦 Mortgage Calculator</h1>
+    <p>Estimate repayments, stamp duty, LMI, and upfront costs for any Australian property.</p>
+    <nav class="header-nav">
+      <a href="/">🏠 Back to PropertyData</a>
+    </nav>
+  </header>
+
+  <div class="mc-page">
+
+    <div class="mc-form-card">
+      <h2 class="mc-section-title">Loan Details</h2>
+
+      <div class="mc-grid">
+        <div class="mc-group">
+          <label>Property Value</label>
+          <div class="mc-input-wrap"><span class="mc-prefix">$</span><input type="number" id="mcPropertyValue" value="800000" min="1"/></div>
+        </div>
+        <div class="mc-group">
+          <label>Deposit</label>
+          <div class="mc-input-wrap"><span class="mc-prefix">$</span><input type="number" id="mcDeposit" value="160000" min="1"/></div>
+        </div>
+        <div class="mc-group">
+          <label>Annual Interest Rate</label>
+          <div class="mc-input-wrap"><input type="number" id="mcRate" value="6.25" min="0.01" max="30" step="0.01"/><span class="mc-suffix">%</span></div>
+        </div>
+        <div class="mc-group">
+          <label>State / Territory</label>
+          <select id="mcState">
+            <option>NSW</option><option>VIC</option><option>QLD</option>
+            <option>SA</option><option>WA</option><option>TAS</option>
+            <option>ACT</option><option>NT</option>
+          </select>
+        </div>
+        <div class="mc-group">
+          <label>Loan Term</label>
+          <select id="mcTerm">
+            <option value="30">30 years</option>
+            <option value="25">25 years</option>
+            <option value="20">20 years</option>
+            <option value="15">15 years</option>
+            <option value="10">10 years</option>
+          </select>
+        </div>
+        <div class="mc-group">
+          <label>Loan Type</label>
+          <select id="mcLoanType">
+            <option value="P&I">Principal &amp; Interest</option>
+            <option value="IO">Interest Only</option>
+          </select>
+        </div>
+        <div class="mc-group">
+          <label>Repayment Frequency</label>
+          <select id="mcFreq">
+            <option value="monthly">Monthly</option>
+            <option value="fortnightly">Fortnightly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div class="mc-group">
+          <label>Offset Balance</label>
+          <div class="mc-input-wrap"><span class="mc-prefix">$</span><input type="number" id="mcOffset" value="0" min="0"/></div>
+        </div>
+        <div class="mc-group">
+          <label>Annual Package Fee</label>
+          <div class="mc-input-wrap"><span class="mc-prefix">$</span><input type="number" id="mcAnnualFee" value="0" min="0"/></div>
+        </div>
+        <div class="mc-group">
+          <label>Upfront Establishment Fee</label>
+          <div class="mc-input-wrap"><span class="mc-prefix">$</span><input type="number" id="mcUpfrontFee" value="0" min="0"/></div>
+        </div>
+      </div>
+
+      <div class="mc-checks">
+        <label><input type="checkbox" id="mcFHB"> First home buyer</label>
+        <label><input type="checkbox" id="mcNewHome"> New / substantially renovated home</label>
+        <label><input type="checkbox" id="mcInvestment"> Investment property</label>
+      </div>
+
+      <div id="mcFHBExtra" class="mc-grid mc-fhb-extra" hidden>
+        <div class="mc-group">
+          <label>Gross Annual Income</label>
+          <div class="mc-input-wrap"><span class="mc-prefix">$</span><input type="number" id="mcIncome" value="0" min="0"/></div>
+        </div>
+        <div class="mc-group mc-group--check">
+          <label><input type="checkbox" id="mcCouple"> Joint purchase (combined income)</label>
+        </div>
+      </div>
+
+      <button type="button" onclick="calcMortgage()" class="mc-submit-btn">Calculate</button>
+    </div>
+
+    <div id="mcResults" class="mc-results" hidden>
+
+      <div class="mc-results-grid">
+        <div class="mc-highlight-card">
+          <div class="mc-highlight__label">Repayment</div>
+          <div class="mc-highlight__value" id="resRepayment">—</div>
+          <div class="mc-highlight__sub" id="resRepaymentSub"></div>
+        </div>
+        <div class="mc-highlight-card">
+          <div class="mc-highlight__label">LVR</div>
+          <div class="mc-highlight__value" id="resLVR">—</div>
+        </div>
+        <div class="mc-highlight-card">
+          <div class="mc-highlight__label">Comparison Rate</div>
+          <div class="mc-highlight__value" id="resCompRate">—</div>
+        </div>
+        <div class="mc-highlight-card">
+          <div class="mc-highlight__label">Total Interest</div>
+          <div class="mc-highlight__value" id="resTotalInterest">—</div>
+        </div>
+      </div>
+
+      <div class="mc-results-row">
+        <div class="mc-table-card">
+          <h3>Loan Summary</h3>
+          <table>
+            <tbody id="resLoanTable"></tbody>
+          </table>
+        </div>
+        <div class="mc-table-card">
+          <h3>Upfront Costs</h3>
+          <table>
+            <tbody id="resUpfrontTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mc-table-card" id="resFHBSection" hidden>
+        <h3>First Home Buyer Assistance</h3>
+        <table>
+          <tbody id="resFHBTable"></tbody>
+        </table>
+      </div>
+
+      <div class="mc-table-card">
+        <h3>Rate Sensitivity</h3>
+        <table>
+          <thead>
+            <tr><th>Rate Change</th><th>Rate</th><th>Repayment</th><th>Total Interest</th></tr>
+          </thead>
+          <tbody id="resSensitivityTable"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div id="mcError" class="mc-error" hidden></div>
+
+  </div>
+
+  <script src="/static/js/mortgage.js"></script>
+</body>
+</html>
