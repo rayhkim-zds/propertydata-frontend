@@ -46,6 +46,7 @@ async function selectAddress(gnafId, label) {
   setContent("daContent",        `<p class="loading">Loading…</p>`);
   setContent("titleContent",     `<p class="loading">Loading…</p>`);
   setContent("bushfireContent",  `<p class="loading">Loading…</p>`);
+  setContent("poolContent",      `<p class="loading">Loading…</p>`);
   setContent("bondContent",      `<p class="loading">Loading…</p>`);
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -73,6 +74,7 @@ async function selectAddress(gnafId, label) {
   loadDA();
   loadTitleSearch();
   loadBushfireRisk();
+  loadPool();
   loadRentalBond();
 }
 
@@ -232,37 +234,64 @@ async function loadSchools() {
 
 // ── DA Tab ────────────────────────────────────────────────────────────────────
 async function loadDA() {
-  const { postcode } = state;
+  const { address, postcode } = state;
   if (!postcode) { setContent("daContent", `<p class="empty">No postcode available.</p>`); return; }
-  const params = new URLSearchParams({ postcode });
-  const status = document.getElementById("daStatus")?.value;
-  if (status) params.set("status", status);
-  const days = document.getElementById("daDays")?.value;
-  if (days) params.set("days", days);
-  const res = await fetch(`/api/da?${params}`);
+  const res = await fetch(`/api/da?address=${encodeURIComponent(address)}&postcode=${encodeURIComponent(postcode)}`);
   const data = await res.json();
-  if (data.error) { setContent("daContent", `<p class="error">${data.error}</p>`); return; }
+  if (data.error) { setContent("daContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+
+  const council = data.council || "Unknown council";
   const apps = data.applications || [];
-  if (!apps.length) { setContent("daContent", `<p class="empty">No development applications found for postcode ${escHtml(postcode)}.</p>`); return; }
-  window._daData = data;
+
+  if (!data.has_local_data) {
+    const portalLink = data.council_da_url
+      ? `<a href="${escHtml(data.council_da_url)}" target="_blank" rel="noopener" class="btn-registry" style="margin-top:.5rem;display:inline-block;">
+           🔗 Search ${escHtml(council)} DA Portal ↗
+         </a>`
+      : "";
+    setContent("daContent", `
+      <div class="panel-card">
+        <p style="margin-bottom:.5rem;">Council: <strong>${escHtml(council)}</strong></p>
+        <p style="color:#718096;font-size:.9rem;">Local DA data is not yet available for this council.</p>
+        ${portalLink}
+      </div>`);
+    return;
+  }
+
+  if (!apps.length) {
+    setContent("daContent", `
+      <div class="panel-card">
+        <p style="margin-bottom:.5rem;">Council: <strong>${escHtml(council)}</strong></p>
+        <p class="empty">No development applications found at this address.</p>
+      </div>`);
+    return;
+  }
+
   setContent("daContent", `
     <div class="panel-card">
-      <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem;">
-        <p style="font-size:.85rem;color:#718096;margin:0">
-          ${apps.length} application${apps.length !== 1 ? "s" : ""} for postcode <strong>${escHtml(postcode)}</strong> — NSW Planning Portal
-        </p>
-        <button onclick="exportDAToExcel(window._daData)" style="padding:.3rem .8rem;font-size:.82rem;background:#2e7d32;width:auto;margin:0;">⬇ Export Excel</button>
-      </div>
+      <p style="font-size:.85rem;color:#718096;margin-bottom:1rem;">
+        ${apps.length} application${apps.length !== 1 ? "s" : ""} found at this address — <strong>${escHtml(council)}</strong>
+      </p>
       ${buildTable(
-        ["App No.","Address","Status","Lodged","Council","Description"],
-        apps.map(a => [
-          escHtml(a.application_number||"—"),
-          escHtml(a.address||"—"),
-          escHtml(a.status||"—"),
-          escHtml(a.lodgement_date||"—"),
-          escHtml(a.council||"—"),
-          escHtml(a.description||"—"),
-        ])
+        ["App No.", "Type", "Category", "Description", "Lodged", "Status"],
+        apps.map(a => {
+          const appNum = a.application_number || "—";
+          const councilUrl = data.council_da_url;
+          const numHtml = councilUrl && appNum !== "—"
+            ? `<a href="${escHtml(councilUrl)}" target="_blank" rel="noopener" style="color:#4a7c59;text-decoration:none;border-bottom:1.5px solid #4a7c59;">${escHtml(appNum)}</a>`
+            : escHtml(appNum);
+          const copyBtn = appNum !== "—"
+            ? `<button onclick="copyToClipboard('${escHtml(appNum)}', this)" style="margin-left:.4rem;padding:.1rem .35rem;font-size:.7rem;background:#fff;border:1px solid #4a7c59;border-radius:3px;cursor:pointer;color:#4a7c59;font-weight:600;width:auto;vertical-align:middle;">Copy</button>`
+            : "";
+          return [
+            `${numHtml}${copyBtn}`,
+            escHtml(a.application_type || "—"),
+            escHtml(a.category || "—"),
+            escHtml(a.description || "—"),
+            escHtml(a.lodged_date || "—"),
+            escHtml((a.status_tags || []).join(", ") || "—"),
+          ];
+        })
       )}
     </div>`);
 }
@@ -427,6 +456,97 @@ async function loadBushfireRisk() {
     </div>`);
 }
 
+// ── Pool Tab ──────────────────────────────────────────────────────────────────
+async function loadPool() {
+  const { lat, lon, address } = state;
+  const res = await fetch(`/api/pool-detect?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}`);
+  const data = await res.json();
+  if (data.error) { setContent("poolContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+
+  const hasPool = data.has_pool;
+  const color = hasPool === true ? "#2e7d32" : hasPool === false ? "#555" : "#888";
+  const label = hasPool === true ? "Yes — pool detected"
+              : hasPool === false ? "No pool detected"
+              : "Unable to determine";
+
+  setContent("poolContent", `
+    <div class="panel-card">
+      <div style="border:2px solid #e0e0e0;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:${color};color:#fff;font-weight:700;">Swimming Pool Detection</div>
+        <div style="padding:.75rem 1rem;font-weight:700;font-size:.95rem;color:${color};">${escHtml(label)}</div>
+        ${hasPool === true ? `
+        <div style="padding:.5rem 1rem .75rem;">
+          <a href="${escHtml(data.register_url)}" target="_blank" rel="noopener"
+             style="display:inline-block;background:#0070f3;color:#fff;padding:.4rem 1rem;border-radius:4px;font-size:.875rem;text-decoration:none;font-weight:600;">
+            Check NSW Swimming Pool Register ↗
+          </a>
+        </div>` : ""}
+        <div style="padding:.5rem 1rem;background:#f8f8f8;border-top:1px solid #e0e0e0;font-size:.8rem;color:#555;">
+          ⚠️ AI-based detection — verify with the NSW Swimming Pool Register.
+        </div>
+      </div>
+    </div>`);
+}
+
+// ── Rent Tab ──────────────────────────────────────────────────────────────────
+async function loadRent() {
+  const { lat, lon, address } = state;
+  const res = await fetch(`/api/rent-detect?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}`);
+  const data = await res.json();
+  if (data.error) { setContent("rentContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+
+  if (data.is_rented === false) {
+    setContent("rentContent", `
+      <div class="panel-card">
+        <div style="border:2px solid #e0e0e0;border-radius:6px;overflow:hidden;font-size:.9rem;">
+          <div style="padding:.6rem 1rem;background:#555;color:#fff;font-weight:700;">Rental Listing</div>
+          <div style="padding:.75rem 1rem;color:#555;font-weight:700;">No current rental listing found for this property.</div>
+          <div style="padding:.5rem 1rem;background:#f8f8f8;border-top:1px solid #e0e0e0;font-size:.8rem;color:#555;">
+            ⚠️ AI-based search — listing may have been recently added or removed.
+          </div>
+        </div>
+      </div>`);
+    return;
+  }
+
+  if (data.is_rented === null) {
+    setContent("rentContent", `<p class="empty">Unable to determine rental status for this property.</p>`);
+    return;
+  }
+
+  const rows = [
+    ["Weekly Rent",    data.weekly_rent],
+    ["Bedrooms",       data.bedrooms],
+    ["Property Type",  data.property_type],
+    ["Source",         data.source],
+  ].filter(([, v]) => v).map(([label, val]) => `
+    <tr>
+      <td style="padding:.4rem .8rem;color:#666;white-space:nowrap;font-weight:500;">${escHtml(label)}</td>
+      <td style="padding:.4rem .8rem;font-weight:700;color:#1a202c;">${escHtml(val)}</td>
+    </tr>`).join("");
+
+  const listingBtn = data.listing_url
+    ? `<div style="padding:.5rem 1rem .75rem;">
+        <a href="${escHtml(data.listing_url)}" target="_blank" rel="noopener"
+           style="display:inline-block;background:#0070f3;color:#fff;padding:.4rem 1rem;border-radius:4px;font-size:.875rem;text-decoration:none;font-weight:600;">
+          View Listing ↗
+        </a>
+      </div>` : "";
+
+  setContent("rentContent", `
+    <div class="panel-card">
+      <div style="border:2px solid #b7dfb7;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:#2e7d32;color:#fff;font-weight:700;">Rental Listing</div>
+        <div style="padding:.75rem 1rem;font-weight:700;font-size:.95rem;color:#2e7d32;">Currently listed for rent</div>
+        <table style="width:100%;border-collapse:collapse;">${rows}</table>
+        ${listingBtn}
+        <div style="padding:.5rem 1rem;background:#f1f8f1;border-top:1px solid #b7dfb7;font-size:.8rem;color:#555;">
+          ⚠️ AI-based search — verify on the listing site.
+        </div>
+      </div>
+    </div>`);
+}
+
 // ── Rental Bond Tab ───────────────────────────────────────────────────────────
 async function loadRentalBond() {
   const postcode = state.postcode;
@@ -465,13 +585,16 @@ async function loadRentalBond() {
     </div>`);
 }
 
-// ── Bond search (activates bond tab + loads data) ─────────────────────────────
-function searchBond() {
+// ── Extra tab search (Rental Bond / Pool dropdown) ────────────────────────────
+function searchExtraTab() {
+  const tab = document.getElementById("extraTabSelect").value;
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-  document.getElementById("bond").classList.add("active");
+  document.getElementById(tab).classList.add("active");
   document.getElementById("results").hidden = false;
-  loadRentalBond();
+  if (tab === "bond") loadRentalBond();
+  else if (tab === "pool") loadPool();
+  else if (tab === "rent") loadRent();
 }
 
 // ── Radius sliders ────────────────────────────────────────────────────────────
@@ -489,39 +612,9 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById(btn.dataset.tab).classList.add("active");
-    document.getElementById("bondPostcodeInput").value = "";
   });
 });
 
-// ── DA Excel Export ───────────────────────────────────────────────────────────
-function exportDAToExcel(data) {
-  const esc = s => String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  const rows = data.applications.map(a => {
-    const appNum = a.application_number || "";
-    const portalUrl = appNum
-      ? `https://www.planningportal.nsw.gov.au/tracking/application/search?applicationNumber=${encodeURIComponent(appNum)}`
-      : "";
-    const appCell = portalUrl
-      ? `<td><a href="${esc(portalUrl)}">${esc(appNum)}</a></td>`
-      : `<td>${esc(appNum)}</td>`;
-    return `<tr>${appCell}<td>${esc(a.address)}</td><td>${esc(a.status)}</td><td>${esc(a.lodgement_date)}</td><td>${esc(a.council)}</td><td>${esc(a.description)}</td></tr>`;
-  }).join("");
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="UTF-8"><style>td{mso-number-format:"@";}</style></head>
-<body><table>
-<thead><tr><th>App No.</th><th>Address</th><th>Status</th><th>Lodged</th><th>Council</th><th>Description</th></tr></thead>
-<tbody>${rows}</tbody>
-</table></body></html>`;
-  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `DA_${data.postcode}_${new Date().toISOString().slice(0,10)}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function setContent(id, html) { document.getElementById(id).innerHTML = html; }

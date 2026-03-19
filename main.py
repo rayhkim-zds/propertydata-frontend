@@ -10,7 +10,7 @@ from api.client import (
     ai_lookup, nearest_transport, nearest_schools,
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
-    bushfire_risk, sales_data,
+    bushfire_risk, sales_data, pool_detect, rent_detect,
 )
 
 app = FastAPI(title="PropertyData Frontend")
@@ -69,8 +69,8 @@ async def schools_data(lat: float, lon: float, address: str, radius_m: int = 200
 
 
 @app.get("/api/da")
-async def da_data(postcode: str, status: str = None, days: int = None, limit: int = 100):
-    return development_applications(postcode, status=status, days=days, limit=limit)
+async def da_data(address: str, postcode: str):
+    return development_applications(address, postcode)
 
 
 @app.get("/api/title-search")
@@ -109,3 +109,13 @@ async def bushfire_risk_data(lat: float, lon: float):
 @app.get("/api/sales-data")
 async def sales_data_route(postcode: int, date_from: int, date_to: int):
     return sales_data(postcode, date_from, date_to)
+
+
+@app.get("/api/pool-detect")
+async def pool_detect_data(lat: float, lon: float, address: str):
+    return pool_detect(lat, lon, address)
+
+
+@app.get("/api/rent-detect")
+async def rent_detect_data(lat: float, lon: float, address: str):
+    return rent_detect(lat, lon, address)

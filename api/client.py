@@ -52,14 +52,8 @@ def nearest_schools(lat: float, lon: float, address: str, radius_m: int = 2000) 
     return _get("nearest-schools", {"lat": lat, "lon": lon, "address": address, "radius_m": radius_m})
 
 
-def development_applications(postcode: str, status: str = None, days: int = None, limit: int = 100) -> Optional[dict]:
-    params = {"postcode": postcode}
-    if status:
-        params["status"] = status
-    if days:
-        params["days"] = days
-    params["limit"] = limit
-    return _get("da", params)
+def development_applications(address: str, postcode: str) -> Optional[dict]:
+    return _get("da", {"address": address, "postcode": postcode})
 
 
 def title_search(gnaf_id: str) -> Optional[dict]:
@@ -90,6 +84,14 @@ def rental_bond_summary(postcode: str) -> Optional[dict]:
 
 def bushfire_risk(lat: float, lon: float) -> Optional[dict]:
     return _get("bushfire-risk", {"lat": lat, "lon": lon})
+
+
+def pool_detect(lat: float, lon: float, address: str) -> Optional[dict]:
+    return _get("pool-detect", {"lat": lat, "lon": lon, "address": address})
+
+
+def rent_detect(lat: float, lon: float, address: str) -> Optional[dict]:
+    return _get("rent-detect", {"lat": lat, "lon": lon, "address": address})
 
 
 def sales_data(postcode: int, date_from: int, date_to: int) -> Optional[dict]:

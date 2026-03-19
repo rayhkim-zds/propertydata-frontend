@@ -17,61 +17,6 @@
 
   <div class="page-layout">
 
-    <!-- Left sidebar: news feed -->
-    <aside class="sidebar sidebar--left">
-      <div class="news-feed">
-        <h2 class="news-feed__title">Property News</h2>
-
-        <article class="news-item">
-          <span class="news-item__tag">Market</span>
-          <a href="#" class="news-item__headline" onclick="return false">Sydney auction clearance rates hit 8-month high as spring listings surge</a>
-          <span class="news-item__meta">Domain · 2h ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Interest Rates</span>
-          <a href="#" class="news-item__headline" onclick="return false">RBA holds cash rate at 4.10% — economists split on next move</a>
-          <span class="news-item__meta">AFR · 4h ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Rental</span>
-          <a href="#" class="news-item__headline" onclick="return false">Melbourne vacancy rate falls to 1.2% — tightest in five years</a>
-          <span class="news-item__meta">REA Group · 6h ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Infrastructure</span>
-          <a href="#" class="news-item__headline" onclick="return false">Western Sydney Metro stations to boost nearby property values by up to 12%</a>
-          <span class="news-item__meta">Herald · 8h ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Policy</span>
-          <a href="#" class="news-item__headline" onclick="return false">Federal government fast-tracks 1.2 million new homes target review</a>
-          <span class="news-item__meta">ABC · 10h ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Market</span>
-          <a href="#" class="news-item__headline" onclick="return false">Brisbane leads capital city price growth for third consecutive quarter</a>
-          <span class="news-item__meta">CoreLogic · 12h ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Finance</span>
-          <a href="#" class="news-item__headline" onclick="return false">First-home buyer grants extended in QLD and WA through 2026</a>
-          <span class="news-item__meta">Mortgage Choice · 1d ago</span>
-        </article>
-
-        <article class="news-item">
-          <span class="news-item__tag">Rental</span>
-          <a href="#" class="news-item__headline" onclick="return false">Perth rents rise 9% year-on-year as interstate migration continues</a>
-          <span class="news-item__meta">REIWA · 1d ago</span>
-        </article>
-      </div>
-    </aside>
-
     <main>
     <!-- Search -->
     <section class="search-card">
@@ -94,8 +39,12 @@
         <button class="tab-btn" data-tab="da">🏗️ Development</button>
         <button class="tab-btn" data-tab="title">📄 Title Search</button>
         <button class="tab-btn" data-tab="bushfire">🔥 Bushfire Risk</button>
-        <input id="bondPostcodeInput" type="text" placeholder="Search Words" style="width:7rem;padding:.35rem .6rem;border:1px solid #cbd5e0;border-radius:6px;font-size:.9rem;margin-left:.5rem"/>
-        <button onclick="searchBond()" style="margin-left:.25rem">Search</button>
+<select id="extraTabSelect" style="padding:.35rem .5rem;border:1px solid #cbd5e0;border-radius:6px;font-size:.9rem;margin-left:.5rem;">
+          <option value="bond">🏠 Rental Bond</option>
+          <option value="pool">🏊 Pool</option>
+          <option value="rent">🔑 Rent</option>
+        </select>
+        <button onclick="searchExtraTab()" style="margin-left:.25rem">Search</button>
       </div>
 
       <div id="property" class="tab-panel">
@@ -156,35 +105,19 @@
         <div id="bushfireContent"><p class="loading">Loading…</p></div>
       </div>
 
+      <div id="pool" class="tab-panel">
+        <div id="poolContent"><p class="loading">Loading…</p></div>
+      </div>
+
+      <div id="rent" class="tab-panel">
+        <div id="rentContent"><p class="loading">Loading…</p></div>
+      </div>
+
       <div id="bond" class="tab-panel active">
         <div id="bondContent"><p class="loading">Loading…</p></div>
       </div>
 
       <div id="da" class="tab-panel">
-        <div class="radius-row">
-          <label>Status:
-            <select id="daStatus" style="padding:.35rem .5rem;font-size:.9rem;border:1px solid #cbd5e0;border-radius:6px;margin-left:.3rem;">
-              <option value="">All</option>
-              <option value="Submitted">Submitted</option>
-              <option value="Under Assessment">Under Assessment</option>
-              <option value="On Exhibition">On Exhibition</option>
-              <option value="Additional Information Requested">Additional Info Requested</option>
-              <option value="Determined">Determined</option>
-              <option value="Withdrawn">Withdrawn</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          </label>
-          <label style="margin-left:.75rem">Lodged within:
-            <select id="daDays" style="padding:.35rem .5rem;font-size:.9rem;border:1px solid #cbd5e0;border-radius:6px;margin-left:.3rem;">
-              <option value="">All time</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="180">Last 180 days</option>
-              <option value="365" selected>Last 12 months</option>
-            </select>
-          </label>
-          <button onclick="loadDA()">Refresh</button>
-        </div>
         <div id="daContent"><p class="loading">Loading…</p></div>
       </div>
     </section>
