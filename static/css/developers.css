@@ -2,9 +2,10 @@
 
 /* Header */
 .dev-header {
-  background: linear-gradient(135deg, #0f2d6b 0%, #1a56db 100%);
+  background: #0a0a0a;
   color: #fff;
   padding: 2rem 2rem 1.75rem;
+  border-bottom: 3px solid #c41230;
 }
 .dev-header__inner {
   max-width: 1200px;
@@ -21,15 +22,15 @@
   font-size: .88rem;
   font-weight: 600;
   text-decoration: none;
-  background: rgba(255,255,255,.15);
-  border: 1.5px solid rgba(255,255,255,.5);
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.35);
   padding: .4rem 1rem;
-  border-radius: 99px;
+  border-radius: 3px;
   margin-bottom: .75rem;
   transition: background .15s, border-color .15s;
 }
-.dev-header__home:hover { background: rgba(255,255,255,.28); border-color: #fff; color: #fff; }
-.dev-header__title { font-size: 1.75rem; font-weight: 700; margin-bottom: .25rem; }
+.dev-header__home:hover { background: #c41230; border-color: #c41230; color: #fff; }
+.dev-header__title { font-size: 1.75rem; font-weight: 700; margin-bottom: .25rem; font-family: Georgia, "Times New Roman", serif; }
 .dev-header__sub   { font-size: .95rem; opacity: .8; }
 
 .dev-header__badges { display: flex; gap: .5rem; align-items: center; }
@@ -42,7 +43,7 @@
   letter-spacing: .05em;
 }
 .badge--green { background: #22543d; color: #9ae6b4; }
-.badge--blue  { background: #1e429f; color: #bfdbfe; }
+.badge--blue  { background: #8a0d22; color: #bfdbfe; }
 .badge--grey  { background: #2d3748; color: #cbd5e0; }
 
 /* Layout */
@@ -87,9 +88,9 @@
   border-left: 2px solid transparent;
 }
 .dev-nav a:hover {
-  background: #ebf4ff;
-  color: #1a56db;
-  border-left-color: #1a56db;
+  background: #fdf4e7;
+  color: #c41230;
+  border-left-color: #c41230;
 }
 
 /* Main content */
@@ -116,7 +117,8 @@
   color: #1a202c;
   margin-bottom: 1rem;
   padding-bottom: .6rem;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #ddd4c5;
+  font-family: Georgia, "Times New Roman", serif;
 }
 .doc-section h3 {
   font-size: .9rem;
@@ -128,7 +130,7 @@
 }
 .doc-section p { font-size: .93rem; color: #4a5568; line-height: 1.65; margin-bottom: .5rem; }
 .doc-section ul { padding-left: 1.25rem; font-size: .93rem; color: #4a5568; line-height: 1.8; }
-.doc-section a { color: #1a56db; }
+.doc-section a { color: #c41230; }
 
 /* Endpoint header pill */
 .endpoint-header {
@@ -146,7 +148,7 @@
   letter-spacing: .04em;
 }
 .method--get  { background: #c6f6d5; color: #22543d; }
-.method--post { background: #bee3f8; color: #1a365d; }
+.method--post { background: #e8ddd0; color: #1a365d; }
 .endpoint-path {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 1rem;
@@ -173,7 +175,7 @@
 .code-block pre {
   margin: 0;
   padding: 1rem 1.1rem;
-  color: #e2e8f0;
+  color: #ddd4c5;
   font-size: .83rem;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   line-height: 1.6;
@@ -202,8 +204,8 @@ code {
 .doc-table th {
   text-align: left;
   padding: .55rem .75rem;
-  background: #f7fafc;
-  border-bottom: 2px solid #e2e8f0;
+  background: #faf6ef;
+  border-bottom: 2px solid #ddd4c5;
   font-size: .76rem;
   text-transform: uppercase;
   letter-spacing: .04em;
@@ -212,21 +214,21 @@ code {
 }
 .doc-table td {
   padding: .55rem .75rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #ede8e0;
   color: #4a5568;
   vertical-align: top;
 }
 .doc-table tr:last-child td { border-bottom: none; }
-.doc-table tr:hover td { background: #f7fafc; }
+.doc-table tr:hover td { background: #faf6ef; }
 
 /* Info boxes */
 .info-box {
-  background: #ebf8ff;
-  border: 1px solid #bee3f8;
+  background: #fdf4e7;
+  border: 1px solid #e8ddd0;
   border-radius: 8px;
   padding: .75rem 1rem;
   font-size: .88rem;
-  color: #2c5282;
+  color: #5a3020;
   margin: .75rem 0;
 }
 .info-box--warning {
