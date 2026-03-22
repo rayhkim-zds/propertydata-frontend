@@ -44,57 +44,7 @@
     </div>
   </div>
 
-  <div class="page-layout">
-
-    <!-- Left panel: ads -->
-    <aside class="sidebar sidebar--left">
-
-      <!-- Demo ad 1: Mortgage broker (300×250) -->
-      <div class="ad-slot">
-        <span class="ad-label">Advertisement</span>
-        <div class="demo-ad demo-ad--mortgage">
-          <div class="demo-ad__logo">🏦</div>
-          <div class="demo-ad__brand">ClearPath Home Loans</div>
-          <div class="demo-ad__tagline">Find your best rate in minutes</div>
-          <ul class="demo-ad__points">
-            <li>✔ Compare 30+ lenders</li>
-            <li>✔ Pre-approval in 24 hrs</li>
-            <li>✔ No hidden fees</li>
-          </ul>
-          <a href="#" class="demo-ad__cta" onclick="return false">Get a Free Quote →</a>
-        </div>
-      </div>
-
-      <!-- Demo ad 2: Buyer's agent (300×600) -->
-      <div class="ad-slot">
-        <span class="ad-label">Sponsored</span>
-        <div class="demo-ad demo-ad--buyers-agent demo-ad--tall">
-          <div class="demo-ad__logo">🔑</div>
-          <div class="demo-ad__brand">Elite Buyers Agency</div>
-          <div class="demo-ad__tagline">We find. You buy. Simple.</div>
-          <p class="demo-ad__body">
-            Skip the open homes. Our experienced buyer's agents negotiate on your behalf and secure properties below market value.
-          </p>
-          <ul class="demo-ad__points">
-            <li>✔ Off-market access</li>
-            <li>✔ Independent advice</li>
-            <li>✔ Nationwide coverage</li>
-            <li>✔ Fixed flat fee</li>
-          </ul>
-          <div class="demo-ad__stat">
-            <span class="demo-ad__stat-num">2,400+</span>
-            <span class="demo-ad__stat-label">properties secured</span>
-          </div>
-          <a href="#" class="demo-ad__cta" onclick="return false">Book a Free Consult →</a>
-          <p class="demo-ad__disclaimer">*Results may vary. Terms apply.</p>
-        </div>
-      </div>
-
-    </aside>
-
-    <main>
-
-    <!-- Results (hidden until address selected) -->
+  <main class="main-content">
     <section id="results" hidden>
       <div id="addressHeader" class="address-header"></div>
 
@@ -107,7 +57,7 @@
         <button class="tab-btn" data-tab="da">🏗️ Development</button>
         <button class="tab-btn" data-tab="title">📄 Title Search</button>
         <button class="tab-btn" data-tab="bushfire">🔥 Bushfire Risk</button>
-<select id="extraTabSelect" style="padding:.3rem .4rem;border:1px solid #cbd5e0;border-radius:3px;font-size:.78rem;margin-left:.5rem;">
+        <select id="extraTabSelect" style="padding:.3rem .4rem;border:1px solid #cbd5e0;border-radius:3px;font-size:.78rem;margin-left:.5rem;">
           <option value="bond">🏠 Rental Bond</option>
           <option value="pool">🏊 Pool</option>
           <option value="rent">🔑 Rent</option>
@@ -190,69 +140,6 @@
       </div>
     </section>
   </main>
-
-  <!-- Right panel: mortgage calculator -->
-  <aside class="sidebar">
-    <div class="ad-slot">
-      <span class="ad-label">🏦 Mortgage Calculator</span>
-      <div class="mini-calc">
-        <div class="mini-calc__group">
-          <label>Property Value</label>
-          <div class="mini-calc__input-wrap"><span class="mini-calc__prefix">$</span><input type="number" id="mcwPropertyValue" value="800000" min="1"/></div>
-        </div>
-        <div class="mini-calc__group">
-          <label>Deposit</label>
-          <div class="mini-calc__input-wrap"><span class="mini-calc__prefix">$</span><input type="number" id="mcwDeposit" value="160000" min="1"/></div>
-        </div>
-        <div class="mini-calc__group">
-          <label>Annual Interest Rate</label>
-          <div class="mini-calc__input-wrap"><input type="number" id="mcwRate" value="6.25" min="0.01" max="30" step="0.01"/><span class="mini-calc__suffix">%</span></div>
-        </div>
-        <div class="mini-calc__group">
-          <label>State</label>
-          <select id="mcwState">
-            <option>NSW</option><option>VIC</option><option>QLD</option>
-            <option>SA</option><option>WA</option><option>TAS</option>
-            <option>ACT</option><option>NT</option>
-          </select>
-        </div>
-        <div class="mini-calc__group">
-          <label>Loan Term</label>
-          <select id="mcwTerm">
-            <option value="30">30 years</option>
-            <option value="25">25 years</option>
-            <option value="20">20 years</option>
-            <option value="15">15 years</option>
-            <option value="10">10 years</option>
-          </select>
-        </div>
-        <div class="mini-calc__group">
-          <label>Loan Type</label>
-          <select id="mcwLoanType">
-            <option value="P&I">Principal &amp; Interest</option>
-            <option value="IO">Interest Only</option>
-          </select>
-        </div>
-        <button type="button" class="mini-calc__btn" onclick="calcMiniMortgage()">Calculate</button>
-        <div id="mcwResult" class="mini-calc__result" hidden></div>
-        <div id="mcwError" class="mini-calc__error" hidden></div>
-        <a href="/mortgage-calculator" target="_blank" rel="noopener" class="mini-calc__link">Full calculator →</a>
-      </div>
-    </div>
-
-    <div id="crmCard" class="ad-slot crm-card" hidden>
-      <span class="ad-label">Tool</span>
-      <div class="crm-card__body">
-        <div class="crm-card__icon">📋</div>
-        <div class="crm-card__title">Manage Your Clients</div>
-        <div class="crm-card__tagline">Track leads, follow-ups, and settlements in one place.</div>
-        <a href="#" class="crm-card__link">Create Your Own CRM →</a>
-      </div>
-    </div>
-
-  </aside>
-
-  </div><!-- /.page-layout -->
 
   <script src="/static/js/app.js"></script>
 </body>
