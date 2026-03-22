@@ -13,12 +13,12 @@
     <div class="hero__inner">
 
       <div class="hero__topbar">
-        <span class="hero__brand">Property Insight</span>
+        <span class="hero__brand"></span>
         <a href="/developers" class="hero__api-link">⚙️ Developer API &rarr;</a>
       </div>
 
       <div class="hero__center">
-        <h1 class="hero__title">Find Your Next Property</h1>
+        <h1 class="hero__title">Property Insight</h1>
         <p class="hero__sub">Search any Australian address for valuations, transport, schools, and development activity.</p>
 
         <div class="hero__search-box">
@@ -32,7 +32,10 @@
           </div>
           <!-- Search -->
           <div class="hero__search-wrap">
-            <input id="searchInput" type="text" placeholder="Start typing an address…" autocomplete="off"/>
+            <div class="hero__input-row">
+              <input id="searchInput" type="text" placeholder="Start typing an address…" autocomplete="off"/>
+              <button id="searchBtn" class="hero__search-btn">Search</button>
+            </div>
             <ul id="suggestionList" class="suggestions" hidden></ul>
           </div>
         </div>

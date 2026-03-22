@@ -16,6 +16,31 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".hero__search-wrap")) hideSuggestions();
 });
 
+document.getElementById("searchBtn").addEventListener("click", async () => {
+  const q = searchInput.value.trim();
+  if (q.length < 2) return;
+  const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
+  if (!res.ok) return;
+  const items = await res.json();
+  if (!items.length) return;
+  if (items.length === 1) {
+    selectAddress(items[0].gnaf_id, items[0].display_name);
+  } else {
+    suggestionList.innerHTML = "";
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item.display_name;
+      li.addEventListener("click", () => selectAddress(item.gnaf_id, item.display_name));
+      suggestionList.appendChild(li);
+    });
+    suggestionList.hidden = false;
+  }
+});
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("searchBtn").click();
+});
+
 async function fetchSuggestions(q) {
   const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
   if (!res.ok) return;
