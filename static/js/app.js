@@ -684,3 +684,77 @@ document.querySelectorAll(".user-tab").forEach(tab => {
     tab.classList.add("active");
   });
 });
+
+// ── Mini Mortgage Calculator Widget ──────────────────────────────────────────
+async function calcMiniMortgage() {
+  const pv       = parseFloat(document.getElementById("mcwPropertyValue").value);
+  const dep      = parseFloat(document.getElementById("mcwDeposit").value);
+  const rate     = parseFloat(document.getElementById("mcwRate").value);
+  const state    = document.getElementById("mcwState").value;
+  const term     = parseInt(document.getElementById("mcwTerm").value);
+  const loanType = document.getElementById("mcwLoanType").value;
+
+  const resultEl = document.getElementById("mcwResult");
+  const errEl    = document.getElementById("mcwError");
+  const btn      = document.querySelector(".mini-calc__btn");
+
+  resultEl.hidden = true;
+  errEl.hidden    = true;
+
+  if (!pv || !dep || !rate) {
+    errEl.textContent = "Please fill in all fields.";
+    errEl.hidden = false;
+    return;
+  }
+
+  btn.textContent = "Calculating…";
+  btn.disabled    = true;
+
+  try {
+    const res  = await fetch("/api/mortgage-quote", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({
+        property_value:     pv,
+        deposit:            dep,
+        annual_rate_pct:    rate,
+        state,
+        loan_term_years:    term,
+        loan_type:          loanType,
+        frequency:          "monthly",
+        offset_balance:     0,
+        annual_fee:         0,
+        upfront_fee:        0,
+        is_first_home_buyer: false,
+        is_new_home:        false,
+        is_investment:      false,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      errEl.textContent = data.error;
+      errEl.hidden = false;
+      return;
+    }
+
+    const repayment = data.repayments && data.repayments.repayment;
+    const lvr       = data.loan_details && data.loan_details.lvr_pct != null
+      ? data.loan_details.lvr_pct.toFixed(1) + "% LVR"
+      : "";
+
+    resultEl.innerHTML =
+      `<div class="mini-calc__result__label">Monthly Repayment</div>` +
+      `<div class="mini-calc__result__value">${repayment != null ? "$" + Math.round(repayment).toLocaleString("en-AU") : "—"}</div>` +
+      (lvr ? `<div class="mini-calc__result__sub">${lvr}</div>` : "");
+    resultEl.hidden = false;
+
+  } catch (e) {
+    errEl.textContent = "Could not calculate — please try again.";
+    errEl.hidden = false;
+  } finally {
+    btn.textContent = "Calculate";
+    btn.disabled    = false;
+  }
+}

@@ -12,7 +12,7 @@ body {
 /* Hero */
 .hero {
   position: relative;
-  min-height: 420px;
+  min-height: 320px;
   background-image: url('/static/images/hero-bg.jpg');
   background-size: cover;
   background-position: center 60%;
@@ -30,7 +30,7 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 1.25rem 2rem 3rem;
+  padding: .75rem 2rem 2rem;
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
@@ -39,7 +39,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 3rem;
+  margin-bottom: 1.25rem;
 }
 .hero__brand {
   font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
@@ -292,6 +292,137 @@ main {
 
 .demo-ad__disclaimer { font-size: .68rem; color: #999999; margin-top: .25rem; }
 
+/* Mini mortgage calculator widget */
+.mini-calc {
+  padding: .9rem .9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.mini-calc__group {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.mini-calc__group label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #666666;
+}
+
+.mini-calc__input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.mini-calc__input-wrap input {
+  flex: 1;
+  min-width: 0;
+  padding: .4rem .5rem;
+  font-size: .88rem;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.mini-calc__prefix,
+.mini-calc__suffix {
+  padding: .4rem .5rem;
+  font-size: .82rem;
+  color: #666;
+  background: #f5f5f3;
+  border-right: 1.5px solid #d0d0d0;
+  white-space: nowrap;
+}
+
+.mini-calc__suffix {
+  border-right: none;
+  border-left: 1.5px solid #d0d0d0;
+}
+
+.mini-calc__group select {
+  padding: .4rem .5rem;
+  font-size: .88rem;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 3px;
+  background: #fff;
+  outline: none;
+  width: 100%;
+}
+
+.mini-calc__btn {
+  margin-top: .2rem;
+  padding: .55rem .75rem;
+  background: #121212;
+  color: #fff;
+  font-size: .88rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.mini-calc__btn:hover { background: #333333; }
+.mini-calc__btn:disabled { background: #888; cursor: default; }
+
+.mini-calc__result {
+  background: #f7f7f5;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  padding: .65rem .75rem;
+  text-align: center;
+}
+
+.mini-calc__result__label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #666;
+  margin-bottom: .15rem;
+}
+
+.mini-calc__result__value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #121212;
+  font-family: "Libre Baskerville", Georgia, serif;
+}
+
+.mini-calc__result__sub {
+  font-size: .75rem;
+  color: #555;
+  margin-top: .2rem;
+}
+
+.mini-calc__error {
+  font-size: .8rem;
+  color: #c0392b;
+  background: #fdf3f3;
+  border: 1px solid #f5c6c6;
+  border-radius: 3px;
+  padding: .45rem .65rem;
+}
+
+.mini-calc__link {
+  font-size: .78rem;
+  color: #326891;
+  text-align: center;
+  text-decoration: none;
+  margin-top: .1rem;
+}
+
+.mini-calc__link:hover { text-decoration: underline; }
+
 /* Collapse sidebars on small screens */
 @media (max-width: 1100px) {
   .sidebar--left { display: none; }
@@ -378,12 +509,12 @@ main {
   margin-bottom: 1rem;
 }
 .tab-btn {
-  padding: .5rem 1.1rem;
+  padding: .3rem .65rem;
   border: 1.5px solid #d0d0d0;
   border-radius: 3px;
   background: #fff;
   cursor: pointer;
-  font-size: .9rem;
+  font-size: .78rem;
   font-weight: 500;
   transition: all .15s;
   color: #555555;
