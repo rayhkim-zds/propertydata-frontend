@@ -629,8 +629,42 @@ td { padding: .6rem .75rem; border-bottom: 1px solid #ededed; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: #f7f7f5; }
 
-/* AI text */
-.ai-summary { line-height: 1.75; font-size: .97rem; white-space: pre-wrap; }
+/* AI / Market Insights */
+.ai-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 1.25rem;
+  padding-bottom: .75rem;
+  border-bottom: 2px solid #e8e8e8;
+}
+.ai-body { line-height: 1.8; font-size: .97rem; color: #222; }
+.ai-heading { color: #111; font-weight: 700; margin: 1.4rem 0 .4rem; }
+.ai-heading--1 { font-size: 1.1rem; }
+.ai-heading--2 { font-size: 1rem; letter-spacing: .01em; text-transform: uppercase; color: #444; font-weight: 600; }
+.ai-heading--3 { font-size: .95rem; font-weight: 600; color: #555; }
+.ai-heading:first-child { margin-top: 0; }
+.ai-para { margin-bottom: .9rem; }
+.ai-para:last-child { margin-bottom: 0; }
+.ai-list {
+  margin: .5rem 0 .9rem 0;
+  padding-left: 1.4rem;
+  list-style: none;
+}
+.ai-list li {
+  position: relative;
+  padding-left: .6rem;
+  margin-bottom: .45rem;
+  color: #333;
+}
+.ai-list li::before {
+  content: "▸";
+  position: absolute;
+  left: -1rem;
+  color: #888;
+  font-size: .8rem;
+  top: .05em;
+}
 
 /* Utilities */
 .loading { color: #666666; font-style: italic; padding: 1rem 0; }

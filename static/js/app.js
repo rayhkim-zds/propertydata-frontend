@@ -132,15 +132,65 @@ function renderProperty(_prop, geo) {
 }
 
 // ── AI Tab ────────────────────────────────────────────────────────────────────
+function renderMarkdown(text) {
+  // Process block-level elements split by double newlines
+  const blocks = text.split(/\n{2,}/);
+  return blocks.map(block => {
+    const lines = block.split('\n').map(l => l.trimEnd());
+
+    // Heading: ## or ###
+    if (/^#{1,3} /.test(lines[0])) {
+      const level = lines[0].match(/^(#{1,3}) /)[1].length;
+      const tag = level === 1 ? 'h3' : level === 2 ? 'h4' : 'h5';
+      const content = inlineMarkdown(lines[0].replace(/^#{1,3} /, ''));
+      return `<${tag} class="ai-heading ai-heading--${level}">${content}</${tag}>`;
+    }
+
+    // Bullet list: lines starting with - or *
+    if (lines.every(l => /^[-*] /.test(l) || l === '')) {
+      const items = lines.filter(l => /^[-*] /.test(l))
+        .map(l => `<li>${inlineMarkdown(l.replace(/^[-*] /, ''))}</li>`).join('');
+      return `<ul class="ai-list">${items}</ul>`;
+    }
+
+    // Mixed block with some bullet lines
+    if (lines.some(l => /^[-*] /.test(l))) {
+      let html = '';
+      let listItems = [];
+      for (const l of lines) {
+        if (/^[-*] /.test(l)) {
+          listItems.push(`<li>${inlineMarkdown(l.replace(/^[-*] /, ''))}</li>`);
+        } else {
+          if (listItems.length) { html += `<ul class="ai-list">${listItems.join('')}</ul>`; listItems = []; }
+          if (l.trim()) html += `<p class="ai-para">${inlineMarkdown(l)}</p>`;
+        }
+      }
+      if (listItems.length) html += `<ul class="ai-list">${listItems.join('')}</ul>`;
+      return html;
+    }
+
+    // Regular paragraph
+    const joined = lines.filter(l => l.trim()).join(' ');
+    return joined ? `<p class="ai-para">${inlineMarkdown(joined)}</p>` : '';
+  }).filter(Boolean).join('\n');
+}
+
+function inlineMarkdown(text) {
+  return escHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>');
+}
+
 async function loadAI() {
   const { lat, lon, address } = state;
   const res = await fetch(`/api/ai?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}`);
   const data = await res.json();
   if (data.error) { setContent("aiContent", `<p class="error">${data.error}</p>`); return; }
+  const html = renderMarkdown(data.summary || "No summary available.");
   setContent("aiContent", `
     <div class="panel-card">
-      <h3 style="margin-bottom:1rem">Property & Suburb Summary</h3>
-      <p class="ai-summary">${escHtml(data.summary || "No summary available.")}</p>
+      <h3 class="ai-title">Market Insights</h3>
+      <div class="ai-body">${html}</div>
     </div>`);
 }
 
