@@ -682,6 +682,7 @@ document.querySelectorAll(".user-tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".user-tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
+    document.getElementById("crmCard").hidden = tab.dataset.user !== "mortgage-broker";
   });
 });
 
