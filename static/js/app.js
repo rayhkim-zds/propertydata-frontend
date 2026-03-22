@@ -13,7 +13,7 @@ searchInput.addEventListener("input", () => {
 });
 
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".search-wrap")) hideSuggestions();
+  if (!e.target.closest(".hero__search-wrap")) hideSuggestions();
 });
 
 async function fetchSuggestions(q) {
@@ -651,3 +651,11 @@ function escHtml(str) {
   document.getElementById("salesDateFrom").value = fmt(past);
   document.getElementById("salesDateTo").value   = fmt(today);
 })();
+
+// ── User-type tabs ────────────────────────────────────────────────────────────
+document.querySelectorAll(".user-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".user-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+  });
+});

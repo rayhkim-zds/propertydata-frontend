@@ -7,13 +7,39 @@
   <link rel="stylesheet" href="/static/css/style.css"/>
 </head>
 <body>
-  <header>
-    <h1>Property Insight</h1>
-    <p>Search any Australian address to get property insights, transport, schools, and development activity.</p>
-    <nav class="header-nav">
-      <a href="/developers">⚙️ Developer API &rarr;</a>
-    </nav>
-  </header>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero__overlay"></div>
+    <div class="hero__inner">
+
+      <div class="hero__topbar">
+        <span class="hero__brand">Property Insight</span>
+        <a href="/developers" class="hero__api-link">⚙️ Developer API &rarr;</a>
+      </div>
+
+      <div class="hero__center">
+        <h1 class="hero__title">Find Your Next Property</h1>
+        <p class="hero__sub">Search any Australian address for valuations, transport, schools, and development activity.</p>
+
+        <div class="hero__search-box">
+          <!-- User-type tabs -->
+          <div class="user-tabs">
+            <button class="user-tab active" data-user="home-buyer">Home Buyer</button>
+            <button class="user-tab" data-user="unit-buyer">Unit Buyer</button>
+            <button class="user-tab" data-user="developer">Developer</button>
+            <button class="user-tab" data-user="buyer-agency">Buyer Agency</button>
+            <button class="user-tab" data-user="mortgage-broker">Mortgage Broker</button>
+          </div>
+          <!-- Search -->
+          <div class="hero__search-wrap">
+            <input id="searchInput" type="text" placeholder="Start typing an address…" autocomplete="off"/>
+            <ul id="suggestionList" class="suggestions" hidden></ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <div class="page-layout">
 
@@ -37,13 +63,6 @@
     </aside>
 
     <main>
-    <!-- Search -->
-    <section class="search-card">
-      <div class="search-wrap">
-        <input id="searchInput" type="text" placeholder="Start typing an address…" autocomplete="off"/>
-        <ul id="suggestionList" class="suggestions" hidden></ul>
-      </div>
-    </section>
 
     <!-- Results (hidden until address selected) -->
     <section id="results" hidden>

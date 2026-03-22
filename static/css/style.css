@@ -9,28 +9,100 @@ body {
   min-height: 100vh;
 }
 
-header {
-  background: #111111;
-  color: #fff;
-  padding: 2rem 1.5rem 1.5rem;
-  text-align: center;
-  border-bottom: 1px solid #333333;
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 420px;
+  background-image: url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center 60%;
+  display: flex;
+  flex-direction: column;
 }
-header h1 { font-size: 2rem; margin-bottom: .4rem; font-family: "Libre Baskerville", Georgia, "Times New Roman", serif; font-weight: 700; letter-spacing: -.01em; }
-header p  { opacity: .7; font-size: 1rem; }
-.header-nav { margin-top: 1rem; }
-.header-nav a {
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.55) 0%, rgba(0,0,0,.45) 60%, rgba(0,0,0,.6) 100%);
+}
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.25rem 2rem 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hero__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+}
+.hero__brand {
+  font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: #fff;
-  font-size: .9rem;
+  letter-spacing: -.01em;
+}
+.hero__api-link {
+  color: #fff;
+  font-size: .85rem;
   font-weight: 600;
   text-decoration: none;
-  background: rgba(255,255,255,.08);
-  border: 1.5px solid rgba(255,255,255,.3);
-  padding: .45rem 1.1rem;
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.35);
+  padding: .4rem 1rem;
   border-radius: 3px;
   transition: background .15s, border-color .15s;
 }
-.header-nav a:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); }
+.hero__api-link:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.65); }
+.hero__center { text-align: center; }
+.hero__title {
+  font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.02em;
+  margin-bottom: .6rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+.hero__sub {
+  color: rgba(255,255,255,.8);
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 1px 6px rgba(0,0,0,.35);
+}
+.hero__search-box {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  text-align: left;
+  overflow: visible;
+}
+.hero__search-wrap {
+  position: relative;
+  padding: 1rem 1rem;
+}
+.hero__search-wrap #searchInput {
+  width: 100%;
+  padding: .85rem 1.1rem;
+  font-size: 1.05rem;
+  border: 2px solid #d0d0d0;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color .2s;
+}
+.hero__search-wrap #searchInput:focus { border-color: #111111; }
+
+@media (max-width: 700px) {
+  .hero__title { font-size: 1.8rem; }
+  .hero__inner { padding: 1rem 1rem 2.5rem; }
+  .hero__topbar { margin-bottom: 2rem; }
+}
 
 /* Page layout: left sidebar + content + right sidebar */
 .page-layout {
@@ -211,27 +283,30 @@ main {
   .ad-placeholder { width: 100%; }
 }
 
-/* Search */
-.search-card {
-  background: #fff;
-  border-radius: 4px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
-  border: 1px solid #e2e2e2;
-  margin-bottom: 1.5rem;
+/* User-type tabs (inside hero search box) */
+.user-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e2e2e2;
+  overflow-x: auto;
+  border-radius: 4px 4px 0 0;
 }
-.search-wrap { position: relative; }
-
-#searchInput {
-  width: 100%;
-  padding: .75rem 1rem;
-  font-size: 1rem;
-  border: 2px solid #d0d0d0;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color .2s;
+.user-tab {
+  padding: .65rem 1.2rem;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: #555555;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s;
+  flex-shrink: 0;
 }
-#searchInput:focus { border-color: #111111; }
+.user-tab:hover  { color: #111111; }
+.user-tab.active { color: #111111; border-bottom-color: #111111; }
 
 .suggestions {
   position: absolute;
