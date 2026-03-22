@@ -18,6 +18,10 @@ body {
   background-position: center 60%;
   display: flex;
   flex-direction: column;
+  transition: min-height .4s ease;
+}
+.hero--full {
+  min-height: 100vh;
 }
 .hero__overlay {
   position: absolute;

@@ -78,6 +78,7 @@ async function selectAddress(gnafId, label) {
   document.querySelector('.tab-btn[data-tab="property"]').classList.add("active");
   document.getElementById("property").classList.add("active");
   document.getElementById("results").hidden = false;
+  document.querySelector(".hero").classList.remove("hero--full");
 
   // Property data (includes geocode)
   const res = await fetch(`/api/property?gnaf_id=${encodeURIComponent(gnafId)}`);
