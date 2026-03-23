@@ -1,4 +1,5 @@
 let state = { lat: null, lon: null, address: null, gnafId: null, postcode: null };
+let loadedTabs = new Set();
 let suggestTimer = null;
 
 // ── Address Autocomplete ──────────────────────────────────────────────────────
@@ -64,15 +65,9 @@ async function selectAddress(gnafId, label) {
   searchInput.value = label;
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
-  setContent("aiContent",        `<p class="loading">Loading…</p>`);
-  setContent("salesdataContent", `<p class="loading">Loading…</p>`);
-  setContent("transportContent", `<p class="loading">Loading…</p>`);
-  setContent("schoolsContent",   `<p class="loading">Loading…</p>`);
-  setContent("daContent",        `<p class="loading">Loading…</p>`);
-  setContent("titleContent",     `<p class="loading">Loading…</p>`);
-  setContent("bushfireContent",  `<p class="loading">Loading…</p>`);
-  setContent("poolContent",      `<p class="loading">Loading…</p>`);
-  setContent("bondContent",      `<p class="loading">Loading…</p>`);
+  ["aiContent","salesdataContent","transportContent","schoolsContent",
+   "daContent","titleContent","bushfireContent","poolContent","bondContent","rentContent"]
+    .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   document.querySelector('.tab-btn[data-tab="property"]').classList.add("active");
@@ -91,17 +86,7 @@ async function selectAddress(gnafId, label) {
 
   renderAddressHeader(geo);
   renderProperty(data.property, geo);
-
-  // Load remaining tabs in parallel
-  loadAI();
-  loadSalesData();
-  loadTransport();
-  loadSchools();
-  loadDA();
-  loadTitleSearch();
-  loadBushfireRisk();
-  loadPool();
-  loadRentalBond();
+  loadedTabs = new Set(["property"]);
 }
 
 // ── Address Header ────────────────────────────────────────────────────────────
@@ -668,6 +653,8 @@ function searchExtraTab() {
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
   document.getElementById("results").hidden = false;
+  setContent(tab + "Content", `<p class="loading">Loading…</p>`);
+  loadedTabs.add(tab);
   if (tab === "bond") loadRentalBond();
   else if (tab === "pool") loadPool();
   else if (tab === "rent") loadRent();
@@ -682,12 +669,31 @@ document.getElementById("schoolsRadius").addEventListener("input", function() {
 });
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
+const TAB_LOADERS = {
+  ai:        loadAI,
+  salesdata: loadSalesData,
+  transport: loadTransport,
+  schools:   loadSchools,
+  da:        loadDA,
+  title:     loadTitleSearch,
+  bushfire:  loadBushfireRisk,
+  pool:      loadPool,
+  bond:      loadRentalBond,
+  rent:      loadRent,
+};
+
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById(tab).classList.add("active");
+    if (state.lat && !loadedTabs.has(tab) && TAB_LOADERS[tab]) {
+      setContent(tab + "Content", `<p class="loading">Loading…</p>`);
+      loadedTabs.add(tab);
+      TAB_LOADERS[tab]();
+    }
   });
 });
 
