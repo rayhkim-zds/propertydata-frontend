@@ -262,20 +262,45 @@ function exportSalesToExcel(data) {
 }
 
 // ── Transport Tab ─────────────────────────────────────────────────────────────
+const TRANSPORT_ICONS = {
+  train:      "🚂 Train",
+  metro:      "🚇 Metro",
+  light_rail: "🚊 Light Rail",
+  bus:        "🚌 Bus",
+  coach:      "🚌 Coach",
+  ferry:      "⛴️ Ferry",
+  school_bus: "🚐 School Bus",
+};
+
+let _lastTransportStops = [];
+
+function _renderTransportStops(radius) {
+  const selectedTypes = new Set([...document.querySelectorAll(".transport-type:checked")].map(c => c.value));
+  const stops = _lastTransportStops.filter(s => selectedTypes.has(s.type));
+  if (!stops.length) { setContent("transportContent", `<p class="empty">No transport stops found within ${radius} m.</p>`); return; }
+  setContent("transportContent", `
+    <div class="panel-card">
+      ${buildTable(["Stop Name","Type","Distance (km)"], stops.map(s => [escHtml(s.name || "—"), TRANSPORT_ICONS[s.type] || escHtml(s.type), s.distance_km]))}
+    </div>`);
+}
+
 async function loadTransport() {
   const { lat, lon, address } = state;
   const radius = document.getElementById("transportRadius").value;
   const res = await fetch(`/api/transport?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}&radius_m=${radius}`);
   const data = await res.json();
   if (data.error) { setContent("transportContent", `<p class="error">${data.error}</p>`); return; }
-  const selectedTypes = new Set([...document.querySelectorAll(".transport-type:checked")].map(c => c.value));
-  const stops = (data.stops || []).filter(s => selectedTypes.has(s.type));
-  if (!stops.length) { setContent("transportContent", `<p class="empty">No transport stops found within ${radius} m.</p>`); return; }
-  setContent("transportContent", `
-    <div class="panel-card">
-      ${buildTable(["Stop Name","Type","Distance (km)"], stops.map(s => [escHtml(s.name || "—"), escHtml(s.type.replace(/_/g," ")), s.distance_km]))}
-    </div>`);
+  _lastTransportStops = data.stops || [];
+  _renderTransportStops(radius);
 }
+
+document.querySelectorAll(".transport-type").forEach(cb => {
+  cb.addEventListener("change", () => {
+    if (_lastTransportStops.length) {
+      _renderTransportStops(document.getElementById("transportRadius").value);
+    }
+  });
+});
 
 // ── Schools Tab ───────────────────────────────────────────────────────────────
 async function loadSchools() {
