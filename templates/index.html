@@ -55,11 +55,12 @@
         <button class="tab-btn" data-tab="transport">🚌 Transport</button>
         <button class="tab-btn" data-tab="schools">🏫 Schools</button>
         <button class="tab-btn" data-tab="da">🏗️ Development</button>
+        <button class="tab-btn" data-tab="zoning">🗺️ Zoning</button>
         <button class="tab-btn" data-tab="title">📄 Title Search</button>
         <button class="tab-btn" data-tab="bushfire">🔥 Bushfire Risk</button>
         <select id="extraTabSelect" style="padding:.3rem .4rem;border:1px solid #cbd5e0;border-radius:3px;font-size:.78rem;margin-left:.5rem;">
-          <option value="bond">🏠 Rental Bond</option>
           <option value="pool">🏊 Pool</option>
+          <option value="bond">🏠 Rental Bond</option>
           <option value="rent">🔑 Rent</option>
         </select>
         <button onclick="searchExtraTab()" style="margin-left:.25rem;padding:.3rem .65rem;font-size:.78rem;border:1.5px solid #d0d0d0;border-radius:3px;background:#fff;cursor:pointer;">Search</button>
@@ -137,6 +138,10 @@
 
       <div id="da" class="tab-panel">
         <div id="daContent"><p class="loading">Loading…</p></div>
+      </div>
+
+      <div id="zoning" class="tab-panel">
+        <div id="zoningContent"><p class="loading">Loading…</p></div>
       </div>
     </section>
   </main>

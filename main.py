@@ -11,7 +11,7 @@ from api.client import (
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
     bushfire_risk, sales_data, pool_detect, rent_detect,
-    mortgage_quote,
+    mortgage_quote, zoning_lookup,
 )
 
 app = FastAPI(title="PropertyData Frontend")
@@ -110,6 +110,11 @@ async def rental_bond_data(postcode: str):
 @app.get("/api/bushfire-risk")
 async def bushfire_risk_data(lat: float, lon: float):
     return bushfire_risk(lat, lon)
+
+
+@app.get("/api/zoning")
+async def zoning_data(lat: float, lon: float):
+    return zoning_lookup(lat, lon)
 
 
 @app.get("/api/sales-data")

@@ -66,7 +66,7 @@ async function selectAddress(gnafId, label) {
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
   ["aiContent","salesdataContent","transportContent","schoolsContent",
-   "daContent","titleContent","bushfireContent","poolContent","bondContent","rentContent"]
+   "daContent","titleContent","bushfireContent","zoningContent","poolContent","bondContent","rentContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -517,6 +517,66 @@ async function loadBushfireRisk() {
     </div>`);
 }
 
+// ── Zoning Tab ────────────────────────────────────────────────────────────────
+const LGA_WEBSITES = {
+  "SYDNEY": "https://www.cityofsydney.nsw.gov.au",
+  "CITY OF SYDNEY": "https://www.cityofsydney.nsw.gov.au",
+  "INNER WEST": "https://www.innerwest.nsw.gov.au",
+  "NORTHERN BEACHES": "https://www.northernbeaches.nsw.gov.au",
+  "WAVERLEY": "https://www.waverley.nsw.gov.au",
+  "WOOLLAHRA": "https://www.woollahra.nsw.gov.au",
+  "RANDWICK": "https://www.randwick.nsw.gov.au",
+  "PENRITH": "https://www.penrithcity.nsw.gov.au",
+  "PARRAMATTA": "https://www.cityofparramatta.nsw.gov.au",
+  "CITY OF PARRAMATTA": "https://www.cityofparramatta.nsw.gov.au",
+  "BLACKTOWN": "https://www.blacktown.nsw.gov.au",
+  "LIVERPOOL": "https://www.liverpool.nsw.gov.au",
+  "CANTERBURY-BANKSTOWN": "https://www.cbcity.nsw.gov.au",
+  "NORTH SYDNEY": "https://www.northsydney.nsw.gov.au",
+  "KU-RING-GAI": "https://www.krg.nsw.gov.au",
+  "WILLOUGHBY": "https://www.willoughby.nsw.gov.au",
+  "LANE COVE": "https://www.lanecove.nsw.gov.au",
+  "RYDE": "https://www.ryde.nsw.gov.au",
+  "HORNSBY": "https://www.hornsby.nsw.gov.au",
+  "CANADA BAY": "https://www.canadabay.nsw.gov.au",
+  "BLUE MOUNTAINS": "https://www.bmcc.nsw.gov.au",
+  "WOLLONGONG": "https://www.wollongong.nsw.gov.au",
+  "NEWCASTLE": "https://www.newcastle.nsw.gov.au",
+};
+
+async function loadZoning() {
+  const { lat, lon } = state;
+  const res = await fetch(`/api/zoning?lat=${lat}&lon=${lon}`);
+  const data = await res.json();
+  if (data.error) { setContent("zoningContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const lgaKey = (data.lga_name || "").toUpperCase();
+  const lgaUrl = LGA_WEBSITES[lgaKey];
+  const lgaDisplay = lgaUrl
+    ? `<a href="${lgaUrl}" target="_blank" rel="noopener" style="color:#2b6cb0;">${escHtml(data.lga_name)}</a>`
+    : escHtml(data.lga_name || "—");
+  setContent("zoningContent", `
+    <div class="panel-card">
+      <div style="border:2px solid #bee3f8;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:#2b6cb0;color:#fff;font-weight:700;letter-spacing:.03em;">
+          Land Zoning
+        </div>
+        <table style="width:100%;border-collapse:collapse;padding:0 1rem .75rem;">
+          <colgroup><col style="width:9rem"></colgroup>
+          <tbody>
+            <tr><td class="bf-label">Zone Code</td><td class="bf-value" style="font-weight:700;">${escHtml(data.zone_code || "—")}</td></tr>
+            <tr><td class="bf-label">Zone Name</td><td class="bf-value">${escHtml(data.zone_name || "—")}</td></tr>
+            <tr><td class="bf-label">LEP / EPI</td><td class="bf-value">${escHtml(data.epi_name || "—")}</td></tr>
+            <tr><td class="bf-label">LGA</td><td class="bf-value">${lgaDisplay}</td></tr>
+            <tr><td class="bf-label">Type</td><td class="bf-value">${escHtml(data.epi_type || "—")}</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:.5rem 1rem;background:#ebf8ff;border-top:2px solid #bee3f8;font-size:.8rem;color:#555;">
+          ⚖️ Source: NSW Planning Portal. For planning advice consult your council.
+        </div>
+      </div>
+    </div>`);
+}
+
 // ── Pool Tab ──────────────────────────────────────────────────────────────────
 async function loadPool() {
   const { lat, lon, address } = state;
@@ -677,6 +737,7 @@ const TAB_LOADERS = {
   da:        loadDA,
   title:     loadTitleSearch,
   bushfire:  loadBushfireRisk,
+  zoning:    loadZoning,
   pool:      loadPool,
   bond:      loadRentalBond,
   rent:      loadRent,
