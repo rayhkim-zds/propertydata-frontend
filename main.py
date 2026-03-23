@@ -21,17 +21,17 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 
 @app.get("/developers", response_class=HTMLResponse)
 async def developers(request: Request):
-    return templates.TemplateResponse("developers.html", {"request": request})
+    return templates.TemplateResponse(request, "developers.html")
 
 
 @app.get("/mortgage-calculator", response_class=HTMLResponse)
 async def mortgage_calculator(request: Request):
-    return templates.TemplateResponse("mortgage.html", {"request": request})
+    return templates.TemplateResponse(request, "mortgage.html")
 
 
 @app.get("/api/suggest")
