@@ -300,7 +300,7 @@ print(r.json())</pre>
           <span class="method method--get">GET</span>
           <span class="endpoint-path">/nearest-schools</span>
         </div>
-        <p>Returns nearby schools, kindergartens, colleges, and universities within a given radius. Sourced from OpenStreetMap.</p>
+        <p>Returns nearby schools within a given radius. Sourced from ACARA (Australian Curriculum, Assessment and Reporting Authority) school location data.</p>
         <h3>Query Parameters</h3>
         <table class="doc-table">
           <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
@@ -322,7 +322,7 @@ print(r.json())</pre>
   "schools": [
     {
       "name": "Sydney Grammar School",
-      "type": "school",
+      "type": "Primary",
       "distance_km": 0.42,
       "lat": -33.8712,
       "lon": 151.2134
@@ -332,7 +332,7 @@ print(r.json())</pre>
 }</pre>
         </div>
         <h3>School types</h3>
-        <p><code>school</code> · <code>kindergarten</code> · <code>college</code> · <code>university</code></p>
+        <p><code>Primary</code> · <code>Secondary</code> · <code>Combined</code></p>
       </section>
 
       <!-- da -->
