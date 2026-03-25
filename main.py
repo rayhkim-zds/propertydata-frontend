@@ -10,7 +10,7 @@ from api.client import (
     ai_lookup, nearest_transport, nearest_schools,
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
-    bushfire_risk, sales_data, pool_detect, rent_detect,
+    bushfire_risk, flood_risk, sales_data, pool_detect, rent_detect,
     mortgage_quote, zoning_lookup,
 )
 
@@ -110,6 +110,11 @@ async def rental_bond_data(postcode: str):
 @app.get("/api/bushfire-risk")
 async def bushfire_risk_data(lat: float, lon: float):
     return bushfire_risk(lat, lon)
+
+
+@app.get("/api/flood-risk")
+async def flood_risk_data(lat: float, lon: float, address: str):
+    return flood_risk(lat, lon, address)
 
 
 @app.get("/api/zoning")

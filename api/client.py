@@ -100,6 +100,10 @@ def bushfire_risk(lat: float, lon: float) -> Optional[dict]:
     return _get("bushfire-risk", {"lat": lat, "lon": lon})
 
 
+def flood_risk(lat: float, lon: float, address: str) -> Optional[dict]:
+    return _get("flood-risk", {"lat": lat, "lon": lon, "address": address})
+
+
 def zoning_lookup(lat: float, lon: float) -> Optional[dict]:
     return _get("zoning", {"lat": lat, "lon": lon})
 

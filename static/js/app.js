@@ -66,7 +66,7 @@ async function selectAddress(gnafId, label) {
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
   ["aiContent","salesdataContent","transportContent","schoolsContent",
-   "daContent","titleContent","bushfireContent","zoningContent","poolContent","bondContent","rentContent"]
+   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -527,6 +527,34 @@ async function loadBushfireRisk() {
     </div>`);
 }
 
+// ── Flood Risk Tab ────────────────────────────────────────────────────────────
+async function loadFloodRisk() {
+  const { lat, lon, address } = state;
+  const res = await fetch(`/api/flood-risk?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}`);
+  const data = await res.json();
+  if (data.error) { setContent("floodContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const risk = data.is_flood_risk;
+  const color = risk === true ? "#b71c1c" : risk === false ? "#2e7d32" : "#888";
+  const label = risk === true  ? "IS in a flood risk or flood prone area."
+              : risk === false ? "NOT in a flood risk or flood prone area."
+              : "Unable to determine flood risk.";
+  setContent("floodContent", `
+    <div class="panel-card">
+      <div style="border:2px solid #e0e0e0;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:${color};color:#fff;font-weight:700;letter-spacing:.03em;">
+          Flood Risk
+        </div>
+        <div style="padding:.75rem 1rem;font-weight:700;font-size:.95rem;color:${color};">
+          RESULT: ${label}
+        </div>
+        ${data.summary ? `<div style="padding:.5rem 1rem;color:#333;font-size:.875rem;">${escHtml(data.summary)}</div>` : ""}
+        <div style="padding:.5rem 1rem;background:#f8f8f8;border-top:2px solid #e0e0e0;font-size:.8rem;color:#555;">
+          ⚠️ AI-based assessment — verify with your council or the NSW SES.
+        </div>
+      </div>
+    </div>`);
+}
+
 // ── Zoning Tab ────────────────────────────────────────────────────────────────
 const LGA_WEBSITES = {
   "SYDNEY": "https://www.cityofsydney.nsw.gov.au",
@@ -747,6 +775,7 @@ const TAB_LOADERS = {
   da:        loadDA,
   title:     loadTitleSearch,
   bushfire:  loadBushfireRisk,
+  flood:     loadFloodRisk,
   zoning:    loadZoning,
   pool:      loadPool,
   bond:      loadRentalBond,
