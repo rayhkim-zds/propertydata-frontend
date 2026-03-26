@@ -454,9 +454,6 @@ async function loadTitleSearch() {
     ["Stratum Level",           cadastreRows.stratumLevel ?? "—"],
     ["Has Stratum",             cadastreRows.hasStratum   ?? "—"],
     ["CAD ID",                  cadastreRows.cadId        ?? "—"],
-    ["Jurisdiction ID",         escHtml(data.jurisdiction_id || "—")],
-    ["Contributor Property ID", escHtml(data.contributor_property_id || "—")],
-    ["Geo Feature",             escHtml(data.geo_feature || "—")],
     ["Address Record Type",     escHtml(data.address_record_type || "—")],
     ["Coordinates",             data.lat && data.lon ? `${data.lat}, ${data.lon}` : "—"],
   ];
