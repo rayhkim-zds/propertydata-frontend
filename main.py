@@ -21,7 +21,14 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+    #return templates.TemplateResponse(request, "index.html")
+    return templates.TemplateResponse(request, "comint-soon.html")
+
+
+
+@app.get("/coming-soon", response_class=HTMLResponse)
+async def coming_soon(request: Request):
+    return templates.TemplateResponse(request, "coming-soon.html")
 
 
 @app.get("/developers", response_class=HTMLResponse)

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Property Insight — Coming Soon</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <style>
+    .coming-soon__wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .coming-soon__eyebrow {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 1.25rem;
+    }
+    .coming-soon__title {
+      font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.02em;
+      text-shadow: 0 2px 16px rgba(0,0,0,.45);
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+    .coming-soon__sub {
+      color: rgba(255,255,255,.75);
+      font-size: 1.1rem;
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+    .coming-soon__notify {
+      display: flex;
+      gap: .5rem;
+      max-width: 420px;
+      width: 100%;
+    }
+    .coming-soon__notify input {
+      flex: 1;
+      padding: .7rem 1rem;
+      font-size: .95rem;
+      border: none;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+    }
+    .coming-soon__notify button {
+      padding: .7rem 1.4rem;
+      font-size: .95rem;
+      font-weight: 600;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .coming-soon__notify button:hover { background: #1d4ed8; }
+    .coming-soon__thanks {
+      display: none;
+      color: rgba(255,255,255,.85);
+      font-size: .95rem;
+      margin-top: .75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero hero--full">
+    <div class="hero__overlay"></div>
+    <div class="hero__inner">
+
+      <div class="hero__topbar">
+        <span class="hero__brand">Property Insight</span>
+        <a href="/" class="hero__api-link">Launch App &rarr;</a>
+      </div>
+
+      <div class="coming-soon__wrap">
+        <p class="coming-soon__eyebrow">Launching soon</p>
+        <h1 class="coming-soon__title">Smarter property<br>decisions start here.</h1>
+        <p class="coming-soon__sub">
+          We're putting the finishing touches on a powerful new way to research Australian
+          property — valuations, transport, schools, risk, and much more in one place.
+        </p>
+        <div class="coming-soon__notify">
+          <input type="email" id="notifyEmail" placeholder="Your email address"/>
+          <button onclick="submitNotify()">Notify me</button>
+        </div>
+        <p class="coming-soon__thanks" id="notifyThanks">Thanks — we'll be in touch!</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function submitNotify() {
+      const email = document.getElementById('notifyEmail').value.trim();
+      if (!email || !email.includes('@')) return;
+      document.querySelector('.coming-soon__notify').style.display = 'none';
+      document.getElementById('notifyThanks').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
