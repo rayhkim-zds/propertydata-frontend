@@ -1,10 +1,14 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, Request, Query
+import os
+import secrets
+from fastapi import FastAPI, Request, Query, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import HTTPException, status
 from api.client import (
     suggest_address, geocode, lookup_property,
     ai_lookup, nearest_transport, nearest_schools,
@@ -18,6 +22,18 @@ app = FastAPI(title="PropertyData Frontend")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+security = HTTPBasic()
+TEMP_PASSWORD = os.getenv("TEMP_PASSWORD", "changeme")
+
+def verify_temp_password(credentials: HTTPBasicCredentials = Depends(security)):
+    correct = secrets.compare_digest(credentials.password.encode(), TEMP_PASSWORD.encode())
+    if not correct:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -29,6 +45,11 @@ async def index(request: Request):
 @app.get("/coming-soon", response_class=HTMLResponse)
 async def coming_soon(request: Request):
     return templates.TemplateResponse(request, "coming-soon.html")
+
+
+@app.get("/temp", response_class=HTMLResponse)
+async def temp(request: Request, _: None = Depends(verify_temp_password)):
+    return templates.TemplateResponse(request, "index.html")
 
 
 @app.get("/developers", response_class=HTMLResponse)
