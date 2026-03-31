@@ -113,6 +113,14 @@ async def zoning_lookup(lat: float, lon: float) -> Optional[dict]:
     return await _get("zoning", {"lat": lat, "lon": lon})
 
 
+async def strata_lookup(lot: str, plan: str) -> Optional[dict]:
+    return await _get("strata", {"lot": lot, "plan": plan})
+
+
+async def strata_simple_lookup(lat: float, lon: float, address: str) -> Optional[dict]:
+    return await _get("strata-simple", {"lat": lat, "lon": lon, "address": address})
+
+
 async def pool_detect(lat: float, lon: float, address: str) -> Optional[dict]:
     return await _get("pool-detect", {"lat": lat, "lon": lon, "address": address})
 

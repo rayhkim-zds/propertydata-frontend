@@ -19,7 +19,7 @@ from api.client import (
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
     bushfire_risk, flood_risk, sales_data, pool_detect, rent_detect,
-    mortgage_quote, zoning_lookup,
+    mortgage_quote, zoning_lookup, strata_lookup, strata_simple_lookup,
 )
 
 # ── Rate limiting ─────────────────────────────────────────────────────────────
@@ -192,6 +192,18 @@ async def flood_risk_data(request: Request, lat: float, lon: float, address: str
 @limiter.limit("20/minute")
 async def zoning_data(request: Request, lat: float, lon: float):
     return await zoning_lookup(lat, lon)
+
+
+@app.get("/api/strata")
+@limiter.limit("20/minute")
+async def strata_data(request: Request, lot: str = Query(..., max_length=20), plan: str = Query(..., max_length=20)):
+    return await strata_lookup(lot, plan)
+
+
+@app.get("/api/strata-simple")
+@limiter.limit("20/minute")
+async def strata_simple_data(request: Request, lat: float, lon: float, address: str = Query(..., max_length=300)):
+    return await strata_simple_lookup(lat, lon, address)
 
 
 @app.get("/api/sales-data")

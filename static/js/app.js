@@ -23,7 +23,11 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
   const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
   if (!res.ok) return;
   const items = await res.json();
-  if (!items.length) return;
+  if (!items.length) {
+    suggestionList.innerHTML = `<li style="padding:.5rem 1rem;color:#888;pointer-events:none;">No results found</li>`;
+    suggestionList.hidden = false;
+    return;
+  }
   if (items.length === 1) {
     selectAddress(items[0].gnaf_id, items[0].display_name);
   } else {
@@ -66,7 +70,7 @@ async function selectAddress(gnafId, label) {
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
   ["aiContent","salesdataContent","transportContent","schoolsContent",
-   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent"]
+   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -612,6 +616,43 @@ async function loadZoning() {
     </div>`);
 }
 
+// ── Strata Tab ────────────────────────────────────────────────────────────────
+async function loadStrata() {
+  const { lat, lon, address } = state;
+
+  const res = await fetch(`/api/strata-simple?lat=${lat}&lon=${lon}&address=${encodeURIComponent(address)}`);
+  const data = await res.json();
+  if (data.error) { setContent("strataContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+
+  if (!data.is_strata) {
+    setContent("strataContent", `
+      <div class="panel-card">
+        <div style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;font-size:.9rem;">
+          <div style="padding:.6rem 1rem;background:#718096;color:#fff;font-weight:700;">Strata Plan</div>
+          <div style="padding:.75rem 1rem;color:#555;">This property is <strong>not a strata title</strong> property.</div>
+        </div>
+      </div>`);
+    return;
+  }
+
+  setContent("strataContent", `
+    <div class="panel-card">
+      <div style="border:2px solid #bee3f8;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:#2b6cb0;color:#fff;font-weight:700;letter-spacing:.03em;">Strata Plan</div>
+        <div style="padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;">
+          <span style="font-size:1.15rem;font-weight:700;color:#2b6cb0;">${escHtml(data.strata_plan_number)}</span>
+          <button class="btn-copy" onclick="copyToClipboard('${escHtml(data.strata_plan_number)}', this)" title="Copy strata plan number">📋 Copy</button>
+        </div>
+        <div style="padding:.5rem 1rem .75rem;">
+          <a href="${escHtml(data.strata_search_url)}" target="_blank" rel="noopener"
+             style="display:inline-block;background:#2b6cb0;color:#fff;padding:.4rem 1rem;border-radius:4px;font-size:.875rem;text-decoration:none;font-weight:600;">
+            Search NSW Strata Register ↗
+          </a>
+        </div>
+      </div>
+    </div>`);
+}
+
 // ── Pool Tab ──────────────────────────────────────────────────────────────────
 async function loadPool() {
   const { lat, lon, address } = state;
@@ -743,6 +784,7 @@ async function loadRentalBond() {
 
 // ── Extra tab search (Rental Bond / Pool dropdown) ────────────────────────────
 function searchExtraTab() {
+  if (!state.lat) return;
   const tab = document.getElementById("extraTabSelect").value;
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -753,6 +795,7 @@ function searchExtraTab() {
   if (tab === "bond") loadRentalBond();
   else if (tab === "pool") loadPool();
   else if (tab === "rent") loadRent();
+  else if (tab === "strata") loadStrata();
 }
 
 // ── Radius sliders ────────────────────────────────────────────────────────────
@@ -777,6 +820,7 @@ const TAB_LOADERS = {
   pool:      loadPool,
   bond:      loadRentalBond,
   rent:      loadRent,
+  strata:    loadStrata,
 };
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -844,7 +888,7 @@ async function calcMiniMortgage() {
   const pv       = parseFloat(document.getElementById("mcwPropertyValue").value);
   const dep      = parseFloat(document.getElementById("mcwDeposit").value);
   const rate     = parseFloat(document.getElementById("mcwRate").value);
-  const state    = document.getElementById("mcwState").value;
+  const selectedState = document.getElementById("mcwState").value;
   const term     = parseInt(document.getElementById("mcwTerm").value);
   const loanType = document.getElementById("mcwLoanType").value;
 
@@ -872,7 +916,7 @@ async function calcMiniMortgage() {
         property_value:     pv,
         deposit:            dep,
         annual_rate_pct:    rate,
-        state,
+        state:              selectedState,
         loan_term_years:    term,
         loan_type:          loanType,
         frequency:          "monthly",
