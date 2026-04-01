@@ -616,6 +616,36 @@ async function loadZoning() {
     </div>`);
 }
 
+// ── Sydney Water Tab ──────────────────────────────────────────────────────────
+async function loadWater() {
+  const { lat, lon, address } = state;
+  const catchmentUrl = "https://www.sydneywater.com.au/water-the-environment/how-we-manage-sydneys-water/stormwater-network/stormwater-catchment-map.html";
+  const params = new URLSearchParams({ lat, lon, address });
+  const safeAddress = escHtml(address);
+  setContent("waterContent", `
+    <div class="panel-card">
+      <div style="border:1px solid #b3d4f5;border-radius:6px;overflow:hidden;">
+        <div style="padding:.6rem 1rem;background:#0057a8;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:.75rem;">
+          <span style="flex:1;">💧 Sydney Water</span>
+          <button
+            onclick="navigator.clipboard.writeText('${safeAddress}').then(()=>{this.textContent='Address copied!';setTimeout(()=>this.textContent='Check Stormwater Catchment ↗',2000)});window.open('${catchmentUrl}','_blank')"
+            style="margin:0;width:auto;padding:.3rem .8rem;font-size:.8rem;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;cursor:pointer;white-space:nowrap;">
+            Check Stormwater Catchment ↗
+          </button>
+        </div>
+        <div style="padding:.5rem 1rem;background:#e8f2fc;font-size:.78rem;color:#444;border-bottom:1px solid #b3d4f5;">
+          Clicking "Check Stormwater Catchment" opens the Sydney Water map and copies the address to your clipboard — paste it into the search box on that page.
+        </div>
+        <iframe
+          src="/api/water-map?${params}"
+          style="width:100%;height:500px;border:none;display:block;"
+          title="Sydney Water Map"
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>`);
+}
+
 // ── Strata Tab ────────────────────────────────────────────────────────────────
 async function loadStrata() {
   const { lat, lon, address } = state;
@@ -782,21 +812,6 @@ async function loadRentalBond() {
     </div>`);
 }
 
-// ── Extra tab search (Rental Bond / Pool dropdown) ────────────────────────────
-function searchExtraTab() {
-  if (!state.lat) return;
-  const tab = document.getElementById("extraTabSelect").value;
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-  document.getElementById("results").hidden = false;
-  setContent(tab + "Content", `<p class="loading">Loading…</p>`);
-  loadedTabs.add(tab);
-  if (tab === "bond") loadRentalBond();
-  else if (tab === "pool") loadPool();
-  else if (tab === "rent") loadRent();
-  else if (tab === "strata") loadStrata();
-}
 
 // ── Radius sliders ────────────────────────────────────────────────────────────
 document.getElementById("transportRadius").addEventListener("input", function() {
@@ -821,6 +836,7 @@ const TAB_LOADERS = {
   bond:      loadRentalBond,
   rent:      loadRent,
   strata:    loadStrata,
+  water:     loadWater,
 };
 
 document.querySelectorAll(".tab-btn").forEach(btn => {

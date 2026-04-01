@@ -60,12 +60,10 @@
         <button class="tab-btn" data-tab="strata">🏢 Strata</button>
         <button class="tab-btn" data-tab="bushfire">🔥 Bushfire</button>
         <button class="tab-btn" data-tab="flood">🌊 Flood</button>
-        <select id="extraTabSelect" style="padding:.3rem .4rem;border:1px solid #cbd5e0;border-radius:3px;font-size:.78rem;margin-left:.5rem;">
-          <option value="pool">🏊 Pool</option>
-          <option value="bond">🏠 Rental Bond</option>
-          <option value="rent">🔑 Rent</option>
-        </select>
-        <button onclick="searchExtraTab()" style="margin-left:.25rem;padding:.3rem .65rem;font-size:.78rem;border:1.5px solid #d0d0d0;border-radius:3px;background:#fff;cursor:pointer;">Search</button>
+        <button class="tab-btn" data-tab="water">💧 Sydney Water</button>
+        <button class="tab-btn" data-tab="pool">🏊 Pool</button>
+        <button class="tab-btn" data-tab="bond">🏠 Rental Bond</button>
+        <button class="tab-btn" data-tab="rent">🔑 Rent</button>
       </div>
 
       <div id="property" class="tab-panel">
@@ -153,6 +151,10 @@
 
       <div id="strata" class="tab-panel">
         <div id="strataContent"><p class="loading">Loading…</p></div>
+      </div>
+
+      <div id="water" class="tab-panel">
+        <div id="waterContent"><p class="loading">Loading…</p></div>
       </div>
     </section>
   </main>

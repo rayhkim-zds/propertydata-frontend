@@ -20,6 +20,7 @@ from api.client import (
     rental_bond_summary, landsize_lookup, property_map_html,
     bushfire_risk, flood_risk, sales_data, pool_detect, rent_detect,
     mortgage_quote, zoning_lookup, strata_lookup, strata_simple_lookup,
+    water_map_html, water_tile,
 )
 
 # ── Rate limiting ─────────────────────────────────────────────────────────────
@@ -168,6 +169,31 @@ async def property_map(request: Request, lot: str = Query(..., max_length=20), p
     if not html:
         return HTMLResponse("<p>Map unavailable. Check backend connection.</p>", status_code=502)
     return HTMLResponse(html)
+
+
+@app.get("/api/water-map", response_class=HTMLResponse)
+@limiter.limit("30/minute")
+async def water_map(request: Request, lat: float, lon: float, address: str = Query(default="", max_length=300)):
+    html = await water_map_html(lat, lon, address)
+    if not html:
+        return HTMLResponse("<p>Sydney Water map unavailable.</p>", status_code=502)
+    return HTMLResponse(html)
+
+
+@app.get("/api/water-tile")
+@limiter.limit("600/minute")
+async def water_tile_proxy(request: Request, service: str, z: int, x: int, y: int):
+    from fastapi.responses import Response
+    data = await water_tile(service, z, x, y)
+    if not data:
+        # return transparent 1×1 PNG so Leaflet doesn't break
+        import base64
+        transparent = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQ"
+            "AABjkB6QAAAABJRU5ErkJggg=="
+        )
+        return Response(content=transparent, media_type="image/png")
+    return Response(content=data, media_type="image/png")
 
 
 @app.get("/api/rental-bond-summary")

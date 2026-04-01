@@ -87,6 +87,34 @@ async def landsize_lookup(lot: str, plan: str) -> Optional[dict]:
     return await _get("landsize", {"lot": lot, "plan": plan})
 
 
+async def water_map_html(lat: float, lon: float, address: str) -> Optional[str]:
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(
+                f"{BASE_URL}/water-map",
+                params={"lat": lat, "lon": lon, "address": address},
+                headers=HEADERS,
+            )
+        r.raise_for_status()
+        return r.text
+    except Exception:
+        return None
+
+
+async def water_tile(service: str, z: int, x: int, y: int) -> Optional[bytes]:
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(
+                f"{BASE_URL}/water-tile",
+                params={"service": service, "z": z, "x": x, "y": y},
+                headers=HEADERS,
+            )
+        r.raise_for_status()
+        return r.content
+    except Exception:
+        return None
+
+
 async def property_map_html(lot: str, plan: str) -> Optional[str]:
     try:
         async with httpx.AsyncClient(timeout=15) as client:
