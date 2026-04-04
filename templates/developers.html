@@ -43,7 +43,6 @@
         <li><a href="#da">Development Apps</a></li>
         <li><a href="#title-search">Title Search</a></li>
         <li><a href="#cadastre">Cadastre</a></li>
-        <li><a href="#validate-postcode">Validate Postcode</a></li>
         <li><a href="#bushfire-risk">Bushfire Risk</a></li>
         <li><a href="#rental-bond-summary">Rental Bond Summary</a></li>
         <li><a href="#landsize">Land Size</a></li>
@@ -441,32 +440,6 @@ print(r.json())</pre>
         </div>
       </section>
 
-      <!-- validate-postcode -->
-      <section id="validate-postcode" class="doc-section">
-        <div class="endpoint-header">
-          <span class="method method--get">GET</span>
-          <span class="endpoint-path">/validate-postcode</span>
-        </div>
-        <p>Validates an Australian postcode and returns the associated suburbs and state via the Australia Post API.</p>
-        <h3>Query Parameters</h3>
-        <table class="doc-table">
-          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>postcode</code></td><td>string</td><td>Yes</td><td>4-digit Australian postcode</td></tr>
-          </tbody>
-        </table>
-        <h3>Response</h3>
-        <div class="code-block">
-          <div class="code-block__label">JSON</div>
-          <pre>{
-  "valid": true,
-  "postcode": "2000",
-  "suburbs": ["SYDNEY", "HAYMARKET", "THE ROCKS"],
-  "state": "NSW"
-}</pre>
-        </div>
-      </section>
-
       <!-- bushfire-risk -->
       <section id="bushfire-risk" class="doc-section">
         <div class="endpoint-header">
@@ -644,8 +617,8 @@ print(r.json())</pre>
       "postcode": 2000,
       "area": 210.0,
       "area_type": "M",
-      "contract_date": 20241105,
-      "settlement_date": 20241220,
+      "contract_date": "2024-11-05",
+      "settlement_date": "2024-12-20",
       "purchase_price": 1250000,
       "property_type_code": "R",
       "property_type_category": "Residential",

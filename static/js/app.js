@@ -187,8 +187,14 @@ async function loadAI() {
 function formatSaleDate(yyyymmdd) {
   if (!yyyymmdd) return "—";
   const s = String(yyyymmdd);
-  if (s.length !== 8) return s;
-  return `${s.slice(6,8)}/${s.slice(4,6)}/${s.slice(0,4)}`;
+  // ISO date string: "2024-11-05"
+  if (s.length === 10 && s[4] === "-") {
+    const [y, m, d] = s.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  // Legacy integer format: 20241105
+  if (s.length === 8) return `${s.slice(6,8)}/${s.slice(4,6)}/${s.slice(0,4)}`;
+  return s;
 }
 
 async function loadSalesData() {
