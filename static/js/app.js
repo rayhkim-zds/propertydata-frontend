@@ -70,7 +70,7 @@ async function selectAddress(gnafId, label) {
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
   ["aiContent","salesdataContent","transportContent","schoolsContent",
-   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent"]
+   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent","catchmentContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -827,6 +827,53 @@ document.getElementById("schoolsRadius").addEventListener("input", function() {
   document.getElementById("schoolsRadiusLabel").textContent = this.value;
 });
 
+// ── School Catchment Tab ──────────────────────────────────────────────────────
+async function loadCatchment() {
+  const { lat, lon } = state;
+  const res = await fetch(`/api/school-catchment?lat=${lat}&lon=${lon}`);
+  const data = await res.json();
+  if (data.error) { setContent("catchmentContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const catchments = data.catchments || [];
+  if (!catchments.length) {
+    setContent("catchmentContent", `<p class="empty">No NSW public school catchment found for this location.</p>`);
+    return;
+  }
+  const TYPE_COLOR = { primary: "#2b6cb0", secondary: "#6b46c1" };
+  const TYPE_BG    = { primary: "#ebf8ff", secondary: "#faf5ff" };
+  const rows = catchments.map(c => {
+    const color = TYPE_COLOR[c.school_type] || "#555";
+    const bg    = TYPE_BG[c.school_type]    || "#f7f7f7";
+    const label = c.school_type === "primary" ? "Primary" : "Secondary";
+    const meta  = [c.catch_type, c.priority ? `Priority ${c.priority}` : null].filter(Boolean).join(" · ");
+    return `<tr>
+      <td style="padding:.45rem 1rem;">
+        <span style="display:inline-block;padding:.15rem .55rem;border-radius:99px;font-size:.75rem;font-weight:700;background:${bg};color:${color};">${label}</span>
+      </td>
+      <td style="padding:.45rem .5rem;font-weight:600;color:#1a1a1a;">${escHtml(c.school_name)}</td>
+      <td style="padding:.45rem 1rem;color:#666;font-size:.85rem;">${escHtml(meta)}</td>
+    </tr>`;
+  }).join("");
+  setContent("catchmentContent", `
+    <div class="panel-card">
+      <div style="border:1px solid #d0d7ff;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:#3949ab;color:#fff;font-weight:700;">School Catchment Areas</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f0f2ff;text-align:left;font-size:.8rem;color:#555;">
+              <th style="padding:.35rem 1rem;font-weight:600;">Type</th>
+              <th style="padding:.35rem .5rem;font-weight:600;">School</th>
+              <th style="padding:.35rem 1rem;font-weight:600;">Catchment</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="padding:.5rem 1rem;background:#f5f6ff;border-top:1px solid #d0d7ff;font-size:.78rem;color:#666;">
+          NSW public schools only &mdash; data via NSW Department of Education.
+        </div>
+      </div>
+    </div>`);
+}
+
 // ── Tab switching ─────────────────────────────────────────────────────────────
 const TAB_LOADERS = {
   ai:        loadAI,
@@ -843,6 +890,7 @@ const TAB_LOADERS = {
   rent:      loadRent,
   strata:    loadStrata,
   water:     loadWater,
+  catchment: loadCatchment,
 };
 
 document.querySelectorAll(".tab-btn").forEach(btn => {

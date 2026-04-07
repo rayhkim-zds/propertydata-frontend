@@ -161,5 +161,18 @@ async def sales_data(postcode: int, date_from: int, date_to: int) -> Optional[di
     return await _get("sales-data", {"postcode": postcode, "date_from": date_from, "date_to": date_to})
 
 
+async def school_catchment(lat: float, lon: float) -> Optional[dict]:
+    # Longer timeout: first call builds shapely cache from 2100 DB polygons
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            r = await client.get(f"{BASE_URL}/school-catchment", params={"lat": lat, "lon": lon}, headers=HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except httpx.HTTPStatusError as e:
+        return {"error": f"HTTP {e.response.status_code}: {e.response.text}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 async def mortgage_quote(payload: dict) -> Optional[dict]:
     return await _post(f"{MORTGAGE_BASE}/mortgage-quote", payload)
