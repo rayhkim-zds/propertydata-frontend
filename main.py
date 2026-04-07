@@ -20,7 +20,7 @@ from api.client import (
     rental_bond_summary, landsize_lookup, property_map_html,
     bushfire_risk, flood_risk, sales_data, pool_detect, rent_detect,
     mortgage_quote, zoning_lookup, strata_lookup, strata_simple_lookup,
-    school_catchment, water_map_html, water_tile,
+    school_catchment, airport_noise, demographic, water_map_html, water_tile,
 )
 
 # ── Rate limiting ─────────────────────────────────────────────────────────────
@@ -254,6 +254,18 @@ async def rent_detect_data(request: Request, lat: float, lon: float, address: st
 @limiter.limit("20/minute")
 async def school_catchment_data(request: Request, lat: float, lon: float):
     return await school_catchment(lat, lon)
+
+
+@app.get("/api/airport-noise")
+@limiter.limit("20/minute")
+async def airport_noise_data(request: Request, lat: float, lon: float):
+    return await airport_noise(lat, lon)
+
+
+@app.get("/api/demographic")
+@limiter.limit("20/minute")
+async def demographic_data(request: Request, postcode: str = Query(..., min_length=4, max_length=4)):
+    return await demographic(postcode)
 
 
 @app.post("/api/mortgage-quote")

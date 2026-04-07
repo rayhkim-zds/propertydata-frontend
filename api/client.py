@@ -174,5 +174,13 @@ async def school_catchment(lat: float, lon: float) -> Optional[dict]:
         return {"error": str(e)}
 
 
+async def airport_noise(lat: float, lon: float) -> Optional[dict]:
+    return await _get("airport-noise", {"lat": lat, "lon": lon})
+
+
+async def demographic(postcode: str) -> Optional[dict]:
+    return await _get("demographic", {"postcode": postcode})
+
+
 async def mortgage_quote(payload: dict) -> Optional[dict]:
     return await _post(f"{MORTGAGE_BASE}/mortgage-quote", payload)

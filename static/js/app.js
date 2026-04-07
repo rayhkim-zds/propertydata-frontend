@@ -70,7 +70,7 @@ async function selectAddress(gnafId, label) {
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
   ["aiContent","salesdataContent","transportContent","schoolsContent",
-   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent","catchmentContent"]
+   "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent","catchmentContent","demographicContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -874,6 +874,81 @@ async function loadCatchment() {
     </div>`);
 }
 
+// ── Demographics Tab ──────────────────────────────────────────────────────────
+async function loadDemographic() {
+  const { postcode } = state;
+  if (!postcode) { setContent("demographicContent", `<p class="empty">No postcode available for this address.</p>`); return; }
+  const res = await fetch(`/api/demographic?postcode=${encodeURIComponent(postcode)}`);
+  const d = await res.json();
+  if (d.error) { setContent("demographicContent", `<p class="error">${escHtml(d.error)}</p>`); return; }
+
+  const fmt = v => v != null ? Number(v).toLocaleString("en-AU") : "—";
+  const fmtCurr = v => v != null ? `$${Number(v).toLocaleString("en-AU")}` : "—";
+  const tot = d.total_population || 0;
+  const pct = v => tot && v != null ? `${(v / tot * 100).toFixed(1)}% <span style="color:#a0aec0;font-weight:400;font-size:.82em">(${fmt(v)})</span>` : fmt(v);
+
+  const ageRows = [
+    ["0–4",   d.age_distribution.age_0_4],
+    ["5–14",  d.age_distribution.age_5_14],
+    ["15–19", d.age_distribution.age_15_19],
+    ["20–24", d.age_distribution.age_20_24],
+    ["25–34", d.age_distribution.age_25_34],
+    ["35–44", d.age_distribution.age_35_44],
+    ["45–54", d.age_distribution.age_45_54],
+    ["55–64", d.age_distribution.age_55_64],
+    ["65–74", d.age_distribution.age_65_74],
+    ["75–84", d.age_distribution.age_75_84],
+    ["85+",   d.age_distribution.age_85_plus],
+  ].map(([label, val]) => [escHtml(label), pct(val)]);
+
+  setContent("demographicContent", `
+    <div class="panel-card">
+      <p style="font-size:.85rem;color:#718096;margin-bottom:1rem">
+        ABS 2021 Census data for postcode <strong>${escHtml(postcode)}</strong>
+      </p>
+
+      <div style="border:1px solid #bee3f8;border-radius:6px;overflow:hidden;margin-bottom:1rem;">
+        <div style="padding:.6rem 1rem;background:#2b6cb0;color:#fff;font-weight:700;">👥 Population</div>
+        ${buildTable(["Metric", "Value"], [
+          ["Total population", fmt(d.total_population)],
+          ["Median age", d.median_age != null ? String(d.median_age) : "—"],
+        ])}
+      </div>
+
+      <div style="border:1px solid #c6f6d5;border-radius:6px;overflow:hidden;margin-bottom:1rem;">
+        <div style="padding:.6rem 1rem;background:#276749;color:#fff;font-weight:700;">💰 Income &amp; Housing Medians</div>
+        ${buildTable(["Metric", "Value"], [
+          ["Personal income (weekly)",      fmtCurr(d.median_personal_income_weekly)],
+          ["Household income (weekly)",     fmtCurr(d.median_household_income_weekly)],
+          ["Family income (weekly)",        fmtCurr(d.median_family_income_weekly)],
+          ["Mortgage repayment (monthly)",  fmtCurr(d.median_mortgage_monthly)],
+          ["Rent (weekly)",                 fmtCurr(d.median_rent_weekly)],
+          ["Avg household size",            d.avg_household_size != null ? String(d.avg_household_size) : "—"],
+          ["Avg persons per bedroom",       d.avg_persons_per_bedroom != null ? String(d.avg_persons_per_bedroom) : "—"],
+        ])}
+      </div>
+
+      <div style="border:1px solid #feebc8;border-radius:6px;overflow:hidden;margin-bottom:1rem;">
+        <div style="padding:.6rem 1rem;background:#744210;color:#fff;font-weight:700;">🌏 Background &amp; Language</div>
+        ${buildTable(["Metric", "Persons"], [
+          ["Born in Australia",       pct(d.born_australia)],
+          ["Born overseas",           pct(d.born_overseas)],
+          ["English only at home",    pct(d.english_only_home)],
+          ["Other language at home",  pct(d.other_lang_home)],
+          ["Australian citizens",     pct(d.australian_citizen)],
+          ["Indigenous persons",      pct(d.indigenous_total)],
+        ])}
+      </div>
+
+      <div style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;margin-bottom:1rem;">
+        <div style="padding:.6rem 1rem;background:#4a5568;color:#fff;font-weight:700;">📊 Age Distribution</div>
+        ${buildTable(["Age Group", "Persons"], ageRows)}
+      </div>
+
+      <p style="font-size:.75rem;color:#a0aec0;">Source: ABS 2021 Census of Population and Housing — Postcode Area (POA)</p>
+    </div>`);
+}
+
 // ── Tab switching ─────────────────────────────────────────────────────────────
 const TAB_LOADERS = {
   ai:        loadAI,
@@ -889,8 +964,9 @@ const TAB_LOADERS = {
   bond:      loadRentalBond,
   rent:      loadRent,
   strata:    loadStrata,
-  water:     loadWater,
-  catchment: loadCatchment,
+  water:       loadWater,
+  catchment:   loadCatchment,
+  demographic: loadDemographic,
 };
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
