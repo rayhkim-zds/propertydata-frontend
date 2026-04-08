@@ -952,8 +952,32 @@ async function loadDemographic() {
         ${buildTable(["Age Group", "Persons"], ageRows)}
       </div>
 
-      <p style="font-size:.75rem;color:#a0aec0;">Source: ABS 2021 Census of Population and Housing — Postcode Area (POA)</p>
+      <p style="font-size:.75rem;color:#a0aec0;">
+        Source: ABS 2021 Census of Population and Housing — Postcode Area (POA) &nbsp;|&nbsp;
+        <a id="census-pdf-link" href="#" target="_blank" rel="noopener noreferrer"
+           style="color:#2b6cb0;text-decoration:none;"
+           onclick="openCensusProfile(event, '${escHtml(postcode)}')">📄 View POA${escHtml(postcode)} Census Profile (PDF)</a>
+      </p>
     </div>`);
+}
+
+async function openCensusProfile(event, postcode) {
+  event.preventDefault();
+  const link = event.currentTarget;
+  link.textContent = "⏳ Loading…";
+  try {
+    const res = await fetch(`/api/census-profile-url?postcode=${encodeURIComponent(postcode)}`);
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || data.detail || "Could not retrieve census profile.");
+      link.innerHTML = `📄 View POA${postcode} Census Profile (PDF)`;
+      return;
+    }
+    window.open(data.url, "_blank", "noopener,noreferrer");
+  } catch {
+    alert("Network error. Please try again.");
+  }
+  link.innerHTML = `📄 View POA${postcode} Census Profile (PDF)`;
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────

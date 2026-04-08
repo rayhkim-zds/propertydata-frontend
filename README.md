@@ -98,4 +98,6 @@ All routes proxy to the backend. Rate-limited at 60 requests/minute per IP (30/m
 | `/api/sales-data`       | `/sales-data`                     |
 | `/api/pool-detect`      | `/pool-detect`                    |
 | `/api/rent-detect`      | `/rent-detect`                    |
-| `/api/mortgage-quote`   | `/api/v1/mortgage/mortgage-quote` |
+| `/api/mortgage-quote`      | `/api/v1/mortgage/mortgage-quote`  |
+| `/api/demographic`         | `/demographic`                     |
+| `/api/census-profile-url`  | `/census-profile-url`              |

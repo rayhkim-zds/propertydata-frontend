@@ -21,6 +21,7 @@ from api.client import (
     bushfire_risk, flood_risk, sales_data, pool_detect, rent_detect,
     mortgage_quote, zoning_lookup, strata_lookup, strata_simple_lookup,
     school_catchment, airport_noise, demographic, water_map_html, water_tile,
+    census_profile_url,
 )
 
 # ── Rate limiting ─────────────────────────────────────────────────────────────
@@ -266,6 +267,12 @@ async def airport_noise_data(request: Request, lat: float, lon: float):
 @limiter.limit("20/minute")
 async def demographic_data(request: Request, postcode: str = Query(..., min_length=4, max_length=4)):
     return await demographic(postcode)
+
+
+@app.get("/api/census-profile-url")
+@limiter.limit("20/minute")
+async def census_profile_url_route(request: Request, postcode: str = Query(..., min_length=4, max_length=4)):
+    return await census_profile_url(postcode)
 
 
 @app.post("/api/mortgage-quote")

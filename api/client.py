@@ -182,5 +182,9 @@ async def demographic(postcode: str) -> Optional[dict]:
     return await _get("demographic", {"postcode": postcode})
 
 
+async def census_profile_url(postcode: str) -> Optional[dict]:
+    return await _get("census-profile-url", {"postcode": postcode})
+
+
 async def mortgage_quote(payload: dict) -> Optional[dict]:
     return await _post(f"{MORTGAGE_BASE}/mortgage-quote", payload)
