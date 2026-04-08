@@ -591,9 +591,16 @@ const LGA_WEBSITES = {
 
 async function loadZoning() {
   const { lat, lon } = state;
-  const res = await fetch(`/api/zoning?lat=${lat}&lon=${lon}`);
-  const data = await res.json();
+  let data;
+  try {
+    const res = await fetch(`/api/zoning?lat=${lat}&lon=${lon}`);
+    data = await res.json();
+  } catch (e) {
+    setContent("zoningContent", `<p class="error">Failed to load zoning data: ${escHtml(String(e))}</p>`);
+    return;
+  }
   if (data.error) { setContent("zoningContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  if (data.detail) { setContent("zoningContent", `<p class="error">${escHtml(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail))}</p>`); return; }
   const lgaKey = (data.lga_name || "").toUpperCase();
   const lgaUrl = LGA_WEBSITES[lgaKey];
   const lgaDisplay = lgaUrl
