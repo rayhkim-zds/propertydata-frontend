@@ -69,7 +69,7 @@ async function selectAddress(gnafId, label) {
   searchInput.value = label;
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
-  ["aiContent","salesdataContent","transportContent","schoolsContent","shoppingContent",
+  ["aiContent","salesdataContent","transportContent","schoolsContent","shoppingContent","gymsContent",
    "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent","catchmentContent","demographicContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -318,6 +318,27 @@ async function loadSchools() {
   setContent("schoolsContent", `
     <div class="panel-card">
       ${buildTable(["School Name","Type","Distance (km)"], schools.map(s => [escHtml(s.name || "—"), escHtml(s.type.charAt(0).toUpperCase() + s.type.slice(1)), s.distance_km]))}
+    </div>`);
+}
+
+// ── Gyms Tab ──────────────────────────────────────────────────────────────────
+const GYM_ICONS = {
+  gym:           "🏋️ Gym",
+  sports_centre: "🏟️ Sports Centre",
+};
+
+async function loadGyms() {
+  const { lat, lon } = state;
+  const radius = document.getElementById("gymsRadius").value;
+  const res = await fetch(`/api/gyms?lat=${lat}&lon=${lon}&radius_m=${radius}`);
+  const data = await res.json();
+  if (data.error) { setContent("gymsContent", `<p class="error">${data.error}</p>`); return; }
+  const selectedTypes = new Set([...document.querySelectorAll(".gym-type:checked")].map(c => c.value));
+  const venues = (data.venues || []).filter(v => selectedTypes.has(v.type));
+  if (!venues.length) { setContent("gymsContent", `<p class="empty">No gyms found within ${radius} m.</p>`); return; }
+  setContent("gymsContent", `
+    <div class="panel-card">
+      ${buildTable(["Venue Name","Type","Distance (km)"], venues.map(v => [escHtml(v.name || "—"), GYM_ICONS[v.type] || escHtml(v.type), v.distance_km]))}
     </div>`);
 }
 
@@ -859,6 +880,9 @@ document.getElementById("schoolsRadius").addEventListener("input", function() {
 document.getElementById("shoppingRadius").addEventListener("input", function() {
   document.getElementById("shoppingRadiusLabel").textContent = this.value;
 });
+document.getElementById("gymsRadius").addEventListener("input", function() {
+  document.getElementById("gymsRadiusLabel").textContent = this.value;
+});
 
 // ── School Catchment Tab ──────────────────────────────────────────────────────
 async function loadCatchment() {
@@ -1013,6 +1037,7 @@ const TAB_LOADERS = {
   transport: loadTransport,
   schools:   loadSchools,
   shopping:  loadShopping,
+  gyms:      loadGyms,
   da:        loadDA,
   title:     loadTitleSearch,
   bushfire:  loadBushfireRisk,
