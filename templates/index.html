@@ -54,6 +54,7 @@
         <button class="tab-btn" data-tab="salesdata">💰 Sales Data</button>
         <button class="tab-btn" data-tab="transport">🚌 Transport</button>
         <button class="tab-btn" data-tab="schools">🏫 Schools</button>
+        <button class="tab-btn" data-tab="shopping">🛍️ Shopping</button>
         <button class="tab-btn" data-tab="da">🏗️ Development</button>
         <button class="tab-btn" data-tab="zoning">🗺️ Zoning</button>
         <button class="tab-btn" data-tab="title">📄 Title Search</button>
@@ -117,6 +118,21 @@
           <label><input type="checkbox" class="school-type" value="Combined" checked> Combined</label>
         </div>
         <div id="schoolsContent"><p class="loading">Loading…</p></div>
+      </div>
+
+      <div id="shopping" class="tab-panel">
+        <div class="radius-row">
+          <label>Radius: <strong id="shoppingRadiusLabel">2000</strong> m</label>
+          <input id="shoppingRadius" type="range" min="100" max="10000" step="100" value="2000"/>
+          <button onclick="loadShopping()">Refresh</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Types:</span>
+          <label><input type="checkbox" class="shopping-type" value="shopping_centre" checked> Shopping centre</label>
+          <label><input type="checkbox" class="shopping-type" value="supermarket" checked> Supermarket</label>
+          <label><input type="checkbox" class="shopping-type" value="department_store" checked> Department store</label>
+        </div>
+        <div id="shoppingContent"><p class="loading">Loading…</p></div>
       </div>
 
       <div id="title" class="tab-panel">

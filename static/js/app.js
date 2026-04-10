@@ -69,7 +69,7 @@ async function selectAddress(gnafId, label) {
   searchInput.value = label;
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
-  ["aiContent","salesdataContent","transportContent","schoolsContent",
+  ["aiContent","salesdataContent","transportContent","schoolsContent","shoppingContent",
    "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent","catchmentContent","demographicContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -297,6 +297,14 @@ async function loadTransport() {
     </div>`);
 }
 
+// ── Shopping Tab ──────────────────────────────────────────────────────────────
+const SHOPPING_ICONS = {
+  shopping_centre:  "🛍️ Shopping Centre",
+  supermarket:      "🛒 Supermarket",
+  department_store: "🏬 Department Store",
+  retail:           "🏪 Retail",
+};
+
 // ── Schools Tab ───────────────────────────────────────────────────────────────
 async function loadSchools() {
   const { lat, lon, address } = state;
@@ -310,6 +318,21 @@ async function loadSchools() {
   setContent("schoolsContent", `
     <div class="panel-card">
       ${buildTable(["School Name","Type","Distance (km)"], schools.map(s => [escHtml(s.name || "—"), escHtml(s.type.charAt(0).toUpperCase() + s.type.slice(1)), s.distance_km]))}
+    </div>`);
+}
+
+async function loadShopping() {
+  const { lat, lon } = state;
+  const radius = document.getElementById("shoppingRadius").value;
+  const res = await fetch(`/api/shopping?lat=${lat}&lon=${lon}&radius_m=${radius}`);
+  const data = await res.json();
+  if (data.error) { setContent("shoppingContent", `<p class="error">${data.error}</p>`); return; }
+  const selectedTypes = new Set([...document.querySelectorAll(".shopping-type:checked")].map(c => c.value));
+  const venues = (data.venues || []).filter(v => selectedTypes.has(v.type));
+  if (!venues.length) { setContent("shoppingContent", `<p class="empty">No shopping venues found within ${radius} m.</p>`); return; }
+  setContent("shoppingContent", `
+    <div class="panel-card">
+      ${buildTable(["Venue Name","Type","Distance (km)"], venues.map(v => [escHtml(v.name || "—"), SHOPPING_ICONS[v.type] || escHtml(v.type), v.distance_km]))}
     </div>`);
 }
 
@@ -833,6 +856,9 @@ document.getElementById("transportRadius").addEventListener("input", function() 
 document.getElementById("schoolsRadius").addEventListener("input", function() {
   document.getElementById("schoolsRadiusLabel").textContent = this.value;
 });
+document.getElementById("shoppingRadius").addEventListener("input", function() {
+  document.getElementById("shoppingRadiusLabel").textContent = this.value;
+});
 
 // ── School Catchment Tab ──────────────────────────────────────────────────────
 async function loadCatchment() {
@@ -986,6 +1012,7 @@ const TAB_LOADERS = {
   salesdata: loadSalesData,
   transport: loadTransport,
   schools:   loadSchools,
+  shopping:  loadShopping,
   da:        loadDA,
   title:     loadTitleSearch,
   bushfire:  loadBushfireRisk,
