@@ -69,7 +69,7 @@ async function selectAddress(gnafId, label) {
   searchInput.value = label;
 
   setContent("propertyContent",  `<p class="loading">Loading…</p>`);
-  ["aiContent","salesdataContent","transportContent","schoolsContent","shoppingContent","gymsContent",
+  ["aiContent","salesdataContent","transportContent","schoolsContent","shoppingContent","gymsContent","nbnContent",
    "daContent","titleContent","bushfireContent","floodContent","zoningContent","poolContent","bondContent","rentContent","strataContent","catchmentContent","demographicContent"]
     .forEach(id => setContent(id, ""));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -606,6 +606,36 @@ async function loadFloodRisk() {
     </div>`);
 }
 
+// ── NBN Tab ───────────────────────────────────────────────────────────────────
+async function loadNbn() {
+  const { address } = state;
+  const res = await fetch(`/api/nbn-check?address=${encodeURIComponent(address)}`);
+  const data = await res.json();
+  if (data.error) { setContent("nbnContent", `<p class="error">${escHtml(data.error)}</p>`); return; }
+  const statusColor = data.service_status === "available" ? "#2e7d32" : "#b71c1c";
+  const rows = [
+    ["Technology",    data.tech_type     || "—"],
+    ["Service type",  data.service_type  || "—"],
+    ["Status",        data.service_status || "—"],
+    ["Serving area",  data.serving_area  || "—"],
+  ].map(([label, value]) => `
+    <tr>
+      <td style="padding:.4rem .75rem;color:#555;font-size:.875rem;width:40%;">${escHtml(label)}</td>
+      <td style="padding:.4rem .75rem;font-weight:600;font-size:.875rem;">${escHtml(value)}</td>
+    </tr>`).join("");
+  setContent("nbnContent", `
+    <div class="panel-card">
+      <div style="border:2px solid #e0e0e0;border-radius:6px;overflow:hidden;font-size:.9rem;">
+        <div style="padding:.6rem 1rem;background:${statusColor};color:#fff;font-weight:700;letter-spacing:.03em;">
+          NBN Connection
+        </div>
+        <div style="padding:.25rem 0;">
+          <table style="width:100%;border-collapse:collapse;">${rows}</table>
+        </div>
+      </div>
+    </div>`);
+}
+
 // ── Zoning Tab ────────────────────────────────────────────────────────────────
 const LGA_WEBSITES = {
   "SYDNEY": "https://www.cityofsydney.nsw.gov.au",
@@ -1038,6 +1068,7 @@ const TAB_LOADERS = {
   schools:   loadSchools,
   shopping:  loadShopping,
   gyms:      loadGyms,
+  nbn:       loadNbn,
   da:        loadDA,
   title:     loadTitleSearch,
   bushfire:  loadBushfireRisk,

@@ -96,8 +96,11 @@ All routes proxy to the backend. Rate-limited at 60 requests/minute per IP (30/m
 | `/api/strata`           | `/strata`                         |
 | `/api/strata-simple`    | `/strata-simple`                  |
 | `/api/sales-data`       | `/sales-data`                     |
-| `/api/pool-detect`      | `/pool-detect`                    |
-| `/api/rent-detect`      | `/rent-detect`                    |
-| `/api/mortgage-quote`      | `/api/v1/mortgage/mortgage-quote`  |
-| `/api/demographic`         | `/demographic`                     |
-| `/api/census-profile-url`  | `/census-profile-url`              |
+| `/api/pool-detect`         | `/pool-detect`                    |
+| `/api/rent-detect`         | `/rent-detect`                    |
+| `/api/shopping`            | `/nearest-shopping`               |
+| `/api/gyms`                | `/nearest-gyms`                   |
+| `/api/nbn-check`           | `/nbn/check`                      |
+| `/api/mortgage-quote`      | `/api/v1/mortgage/mortgage-quote` |
+| `/api/demographic`         | `/demographic`                    |
+| `/api/census-profile-url`  | `/census-profile-url`             |

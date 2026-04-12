@@ -79,6 +79,10 @@ async def nearest_gyms(lat: float, lon: float, radius_m: int = 2000) -> Optional
     return await _get("nearest-gyms", {"lat": lat, "lon": lon, "radius_m": radius_m})
 
 
+async def nbn_check(address: str) -> Optional[dict]:
+    return await _get("nbn/check", {"address": address})
+
+
 async def development_applications(address: str, postcode: str) -> Optional[dict]:
     return await _get("da", {"address": address, "postcode": postcode})
 

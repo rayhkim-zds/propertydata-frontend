@@ -15,7 +15,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from api.client import (
     suggest_address, geocode, lookup_property,
-    ai_lookup, nearest_transport, nearest_schools, nearest_shopping, nearest_gyms,
+    ai_lookup, nearest_transport, nearest_schools, nearest_shopping, nearest_gyms, nbn_check,
     development_applications, title_search, cadastre_lookup,
     rental_bond_summary, landsize_lookup, property_map_html,
     bushfire_risk, flood_risk, sales_data, pool_detect, rent_detect,
@@ -149,6 +149,12 @@ async def shopping_data(request: Request, lat: float, lon: float, radius_m: int 
 @limiter.limit("20/minute")
 async def gyms_data(request: Request, lat: float, lon: float, radius_m: int = Query(default=2000, ge=100, le=10000)):
     return await nearest_gyms(lat, lon, radius_m)
+
+
+@app.get("/api/nbn-check")
+@limiter.limit("20/minute")
+async def nbn_check_data(request: Request, address: str = Query(..., max_length=300)):
+    return await nbn_check(address)
 
 
 @app.get("/api/da")
